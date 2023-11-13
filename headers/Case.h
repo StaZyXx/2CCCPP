@@ -5,8 +5,8 @@
 
 class Case {
 private:
-    Player* player;
-    char playerChar;
+    Player* player{};
+    char playerChar{};
 
 public:
     Case();

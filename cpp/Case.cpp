@@ -1,8 +1,6 @@
 #include "../headers/Case.h"
 
-Case::Case() {
-
-}
+Case::Case() = default;
 
 Player *Case::getPlayer() const {
     return player;

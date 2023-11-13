@@ -7,6 +7,10 @@ private:
 public:
     void startGame();
     Game();
+
+    void initPlayers();
+
+    void createBoard();
 };
 
 

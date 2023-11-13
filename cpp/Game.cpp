@@ -1,5 +1,6 @@
 #include "../headers/Game.h"
 #include "../headers/Player.h"
+#include "../headers/Case.h"
 #include <iostream>
 #include <vector>
 
@@ -8,10 +9,25 @@ using namespace std;
 Game::Game() = default;
 
 void Game::startGame() {
+    initPlayers();
+    createBoard();
+
+}
+
+void Game::initPlayers() {
     vector<Player> players;
     vector<string> colors = {"Rouge", "Bleu", "Vert", "Jaune", "Violet", "Blanc", "Rose", "Orange", "Marron"};
-    cout << "Entrez le nombre de joueurs :";
-    cin >> amountPlayer;
+    bool validPlayerAmount = false;
+    while (!validPlayerAmount) {
+        cout << "Entrez le nombre de joueurs :";
+        cin >> amountPlayer;
+        if (amountPlayer >= 2 && amountPlayer <= 9) {
+            validPlayerAmount = true;
+        } else {
+            validPlayerAmount = false;
+            cout << "Merci de rentrer un chiffre entre 2 et 9 joueurs." << endl;
+        }
+    }
     for (int i = 0; i < amountPlayer; ++i) {
         string playerName;
         cout << "Entrez le nom du joueur " << i + 1 << " :";
@@ -41,7 +57,27 @@ void Game::startGame() {
         }
         players.push_back(Player(playerColor, playerName));
     }
-    for (int i = 0; i < players.size(); ++i) {
-        cout << "Player" << i + 1 << " : " << players[i].getPlayerName() << "Couleur : " << players[i].getPlayerColor() << endl;
+    for (auto &player: players) {
+        cout << "Name: " << player.getPlayerName() << " | Color: " << player.getPlayerColor() << endl;
     }
+}
+
+void Game::createBoard() {
+    vector<vector<Case>> board;
+    int boardSize;
+    if (amountPlayer <= 4) {
+        boardSize = 20;
+    } else {
+        boardSize = 30;
+    }
+    for (int i = 0; i < boardSize - 1; ++i) {
+        for (int j = 0; j < boardSize - 1; ++j) {
+            Case aCase;
+            board[i].push_back(aCase.setPlayerChar('.'));
+
+        }
+
+
+    }
+
 }
