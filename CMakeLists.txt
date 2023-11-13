@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.26)
 project(Project)
 
 set(CMAKE_CXX_STANDARD 17)
-
 add_executable(Project main.cpp
         cpp/Case.cpp
         headers/Case.h
@@ -13,3 +12,5 @@ add_executable(Project main.cpp
         cpp/Tile.cpp
         headers/Tile.h
 )
+target_link_libraries(Project winmm.lib)
+

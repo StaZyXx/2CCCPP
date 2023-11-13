@@ -3,15 +3,14 @@
 #include "../headers/Case.h"
 #include <iostream>
 #include <vector>
-
+#include <cmath>
+#include <windows.h>
+#pragma comment(lib, "winmm.lib")
 using namespace std;
-
-Game::Game() = default;
-
 void Game::startGame() {
-    initPlayers();
+    //initPlayers();
     createBoard();
-
+    displayBoard();
 }
 
 void Game::initPlayers() {
@@ -63,7 +62,6 @@ void Game::initPlayers() {
 }
 
 void Game::createBoard() {
-    vector<vector<Case>> board;
     int boardSize;
     if (amountPlayer <= 4) {
         boardSize = 20;
@@ -71,13 +69,47 @@ void Game::createBoard() {
         boardSize = 30;
     }
     for (int i = 0; i < boardSize - 1; ++i) {
+        vector<Case> line;
         for (int j = 0; j < boardSize - 1; ++j) {
-            Case aCase;
-            board[i].push_back(aCase.setPlayerChar('.'));
-
+            Case aCase(Case::NONE, nullptr, '.');
+            line.push_back(aCase);
         }
-
-
+        board.push_back(line);
     }
+    int amountBonusExchangeTile = round(amountPlayer * 1.5);
+    int amountBonusStoneTile = round(amountPlayer * 0.5);
+    int amountBonusRobberyTile = amountPlayer;
+    bool allBonusPlaced = false;
+    while (!allBonusPlaced) {
+        int x = rand() % boardSize;
+        int y = rand() % boardSize;
+        int bonusType = rand() % 3;
+        if (board[x][y].bonus == Case::NONE) {
+            if (bonusType == 0 && amountBonusExchangeTile > 0) {
+                Case aCase(Case::EXCHANGE_TILE, nullptr, 'E');
+                board[x][y] = aCase;
+                amountBonusExchangeTile--;
+            } else if (bonusType == 1 && amountBonusStoneTile > 0) {
+                Case aCase(Case::STONE_TILE, nullptr, 'S');
+                board[x][y] = aCase;
+                amountBonusStoneTile--;
+            } else if (bonusType == 2 && amountBonusRobberyTile > 0) {
+                Case aCase(Case::ROBBERY_TILE, nullptr, 'R');
+                board[x][y] = aCase;
+                amountBonusRobberyTile--;
+            }
+        }
+        if (amountBonusExchangeTile == 0 && amountBonusStoneTile == 0 && amountBonusRobberyTile == 0) {
+            allBonusPlaced = true;
+        }
+    }
+}
 
+void Game::displayBoard() {
+    for (auto & i : board) {
+        for (int j = 0; j < board.size(); ++j) {
+            cout << i[j].getType() << " ";
+        }
+        cout << endl;
+    }
 }

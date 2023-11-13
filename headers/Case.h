@@ -6,18 +6,22 @@
 class Case {
 private:
     Player* player{};
-    char playerChar{};
 
+    char type;
 public:
-    Case();
+    enum BonusType {EXCHANGE_TILE, STONE_TILE, ROBBERY_TILE, NONE};
+    BonusType bonus;
+
+    Case(BonusType bonus, Player *player, char type);
 
     Player *getPlayer() const;
 
     void setPlayer(Player *player);
 
-    char getPlayerChar() const;
+    char getType() const;
 
-    void setPlayerChar(char playerChar);
+    void setType(char type);
+
 };
 
 

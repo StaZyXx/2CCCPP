@@ -1,7 +1,5 @@
 #include "../headers/Case.h"
 
-Case::Case() = default;
-
 Player *Case::getPlayer() const {
     return player;
 }
@@ -10,11 +8,17 @@ void Case::setPlayer(Player *player) {
     Case::player = player;
 }
 
-char Case::getPlayerChar() const {
-    return playerChar;
+Case::Case(Case::BonusType bonus, Player *player, char type) {
+    this->bonus = bonus;
+    this->player = player;
+    this->type = type;
 }
 
-void Case::setPlayerChar(char playerChar) {
-    Case::playerChar = playerChar;
+char Case::getType() const {
+    return type;
+}
+
+void Case::setType(char type) {
+    Case::type = type;
 }
 
