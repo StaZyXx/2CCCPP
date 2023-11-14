@@ -5,17 +5,23 @@
 
 using namespace std;
 
-class Player {
+class Player{
 private:
+    vector<Player> players;
+
     string playerColor;
+
     string playerName;
+
+    char playerChar;
 public:
     string getPlayerColor();
 
-    string getPlayerName();
+    const string &getPlayerName() const;
 
-public:
-    Player(string PlayerColor, string PlayerName);
+    char getPlayerChar() const;
+
+    Player(string PlayerColor, string PlayerName, char PlayerChar);
 };
 
 

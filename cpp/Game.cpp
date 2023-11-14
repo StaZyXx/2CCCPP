@@ -4,17 +4,21 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
-#include <windows.h>
-#pragma comment(lib, "winmm.lib")
+
 using namespace std;
+
+Game::Game() {
+
+}
+
 void Game::startGame() {
-    //initPlayers();
+    initPlayers();
     createBoard();
     displayBoard();
+    placePlayers();
 }
 
 void Game::initPlayers() {
-    vector<Player> players;
     vector<string> colors = {"Rouge", "Bleu", "Vert", "Jaune", "Violet", "Blanc", "Rose", "Orange", "Marron"};
     bool validPlayerAmount = false;
     while (!validPlayerAmount) {
@@ -54,7 +58,7 @@ void Game::initPlayers() {
                 cout << "Cette couleur n'existe pas" << endl;
             }
         }
-        players.push_back(Player(playerColor, playerName));
+        players.push_back(Player(playerColor, playerName, playerName[0]));
     }
     for (auto &player: players) {
         cout << "Name: " << player.getPlayerName() << " | Color: " << player.getPlayerColor() << endl;
@@ -76,6 +80,7 @@ void Game::createBoard() {
         }
         board.push_back(line);
     }
+
     int amountBonusExchangeTile = round(amountPlayer * 1.5);
     int amountBonusStoneTile = round(amountPlayer * 0.5);
     int amountBonusRobberyTile = amountPlayer;
@@ -106,10 +111,72 @@ void Game::createBoard() {
 }
 
 void Game::displayBoard() {
-    for (auto & i : board) {
+    for (auto &i: board) {
         for (int j = 0; j < board.size(); ++j) {
             cout << i[j].getType() << " ";
         }
         cout << endl;
     }
+}
+
+void Game::placePlayers() {
+    for (int i = 0; i < players.size(); ++i) {
+        int x;
+        int y;
+        bool validPlacement = false;
+        while (!validPlacement) {
+            cout << "Joueur " << i << " placez votre case de depart" << endl;
+            cin >> x >> y;
+            if (checkPlacement(x, y)) {
+                board[x][y].setPlayer(&players[i]);
+                board[x][y].setType(players[i].getPlayerChar());
+                displayBoard();
+                validPlacement = true;
+            } else {
+                cout << "Merci de rentrer un placement valide" << endl;
+                displayBoard();
+            }
+        }
+    }
+}
+bool Game::checkPlacement(int x, int y) {
+    //Check top-left corner
+    if (x == 0 && y == 0 ) {
+        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x][y + 1].getType() == '.') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //Check top-right corner
+    if (x == 0 && y == board.size() - 1) {
+        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x][y - 1].getType() == '.') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //Check bottom-right corner
+    if (x == board.size() - 1 && y == board.size() - 1) {
+        if (board[x][y].getType() == '.' && board[x - 1][y].getType() == '.' && board[x][y - 1].getType() == '.') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //Check bottom-left corner
+    if (x == board.size() - 1 && y == 0) {
+        if ((board[x][y].getType() == '.' && board[x - 1][y].getType() == '.' && board[x][y + 1].getType() == '.')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x - 1][y].getType() == '.' &&
+        board[x][y + 1].getType() == '.' && board[x][y - 1].getType() == '.') {
+        return true;
+    } else {
+        return false;
+    }
+
 }

@@ -6,7 +6,10 @@
 class Game {
 private:
     vector<vector<Case>> board;
+
     int amountPlayer;
+
+    vector<Player> players;
 
 public:
     void startGame();
@@ -18,6 +21,10 @@ public:
     void createBoard();
 
     void displayBoard();
+
+    void placePlayers();
+
+    bool checkPlacement(int x, int y);
 };
 
 
