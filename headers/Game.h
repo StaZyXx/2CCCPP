@@ -7,7 +7,7 @@ class Game {
 private:
     vector<vector<Case>> board;
 
-    int amountPlayer;
+    int amountPlayer{};
 
     vector<Player> players;
 

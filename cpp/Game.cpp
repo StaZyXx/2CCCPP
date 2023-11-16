@@ -1,15 +1,11 @@
 #include "../headers/Game.h"
-#include "../headers/Player.h"
-#include "../headers/Case.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
 
 using namespace std;
 
-Game::Game() {
-
-}
+Game::Game() = default;
 
 void Game::startGame() {
     initPlayers();
@@ -121,8 +117,7 @@ void Game::displayBoard() {
 
 void Game::placePlayers() {
     for (int i = 0; i < players.size(); ++i) {
-        int x;
-        int y;
+        int x, y;
         bool validPlacement = false;
         while (!validPlacement) {
             cout << "Joueur " << i << " placez votre case de depart" << endl;
@@ -134,7 +129,6 @@ void Game::placePlayers() {
                 validPlacement = true;
             } else {
                 cout << "Merci de rentrer un placement valide" << endl;
-                displayBoard();
             }
         }
     }
@@ -172,6 +166,43 @@ bool Game::checkPlacement(int x, int y) {
             return false;
         }
     }
+    //Check top side
+    if (x == 0 && y != 0 && y != board.size() - 1) {
+        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x][y + 1].getType() == '.' &&
+            board[x][y - 1].getType() == '.') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //Check right side
+    if (x != 0 && x != board.size() - 1 && y == board.size() - 1) {
+        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x - 1][y].getType() == '.' &&
+            board[x][y - 1].getType() == '.') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //Check bottom side
+    if (x == board.size() - 1 && y != 0 && y != board.size() - 1) {
+        if (board[x][y].getType() == '.' && board[x - 1][y].getType() == '.' && board[x][y + 1].getType() == '.' &&
+            board[x][y - 1].getType() == '.') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //Check left side
+    if (x != 0 && x != board.size() - 1 && y == 0) {
+        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x - 1][y].getType() == '.' &&
+            board[x][y + 1].getType() == '.') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    //Except all sides and corners
     if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x - 1][y].getType() == '.' &&
         board[x][y + 1].getType() == '.' && board[x][y - 1].getType() == '.') {
         return true;
