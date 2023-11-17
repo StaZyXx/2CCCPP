@@ -7,7 +7,7 @@ class Game {
 private:
     vector<vector<Case>> board;
 
-    int amountPlayer{};
+    int amountPlayer;
 
     vector<Player> players;
 
@@ -25,6 +25,8 @@ public:
     void placePlayers();
 
     bool checkPlacement(int x, int y);
+
+    void mixTiles();
 };
 
 

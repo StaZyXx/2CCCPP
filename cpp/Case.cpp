@@ -22,3 +22,11 @@ void Case::setType(char type) {
     Case::type = type;
 }
 
+bool Case::canTouch() {
+    return touch;
+}
+
+void Case::setTouch(bool touch) {
+    this->touch = touch;
+}
+

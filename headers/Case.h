@@ -8,11 +8,17 @@ private:
     Player* player{};
 
     char type;
+
+    bool touch = false;
 public:
     enum BonusType {EXCHANGE_TILE, STONE_TILE, ROBBERY_TILE, NONE};
     BonusType bonus;
 
     Case(BonusType bonus, Player *player, char type);
+
+    bool canTouch();
+
+    void setTouch(bool touch);
 
     Player *getPlayer() const;
 

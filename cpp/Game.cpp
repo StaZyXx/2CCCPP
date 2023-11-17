@@ -1,17 +1,21 @@
 #include "../headers/Game.h"
+#include "../headers/Tile.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
 Game::Game() = default;
 
 void Game::startGame() {
-    initPlayers();
-    createBoard();
-    displayBoard();
-    placePlayers();
+    //initPlayers();
+    //createBoard();
+    //displayBoard();
+    //placePlayers();
+    mixTiles();
 }
 
 void Game::initPlayers() {
@@ -72,11 +76,11 @@ void Game::createBoard() {
         vector<Case> line;
         for (int j = 0; j < boardSize - 1; ++j) {
             Case aCase(Case::NONE, nullptr, '.');
+            aCase.setTouch(true);
             line.push_back(aCase);
         }
         board.push_back(line);
     }
-
     int amountBonusExchangeTile = round(amountPlayer * 1.5);
     int amountBonusStoneTile = round(amountPlayer * 0.5);
     int amountBonusRobberyTile = amountPlayer;
@@ -88,14 +92,17 @@ void Game::createBoard() {
         if (board[x][y].bonus == Case::NONE) {
             if (bonusType == 0 && amountBonusExchangeTile > 0) {
                 Case aCase(Case::EXCHANGE_TILE, nullptr, 'E');
+                aCase.setTouch(true);
                 board[x][y] = aCase;
                 amountBonusExchangeTile--;
             } else if (bonusType == 1 && amountBonusStoneTile > 0) {
                 Case aCase(Case::STONE_TILE, nullptr, 'S');
+                aCase.setTouch(true);
                 board[x][y] = aCase;
                 amountBonusStoneTile--;
             } else if (bonusType == 2 && amountBonusRobberyTile > 0) {
                 Case aCase(Case::ROBBERY_TILE, nullptr, 'R');
+                aCase.setTouch(true);
                 board[x][y] = aCase;
                 amountBonusRobberyTile--;
             }
@@ -125,6 +132,7 @@ void Game::placePlayers() {
             if (checkPlacement(x, y)) {
                 board[x][y].setPlayer(&players[i]);
                 board[x][y].setType(players[i].getPlayerChar());
+                board[x][y].setTouch(false);
                 displayBoard();
                 validPlacement = true;
             } else {
@@ -133,81 +141,69 @@ void Game::placePlayers() {
         }
     }
 }
+
+
 bool Game::checkPlacement(int x, int y) {
     //Check top-left corner
-    if (x == 0 && y == 0 ) {
-        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x][y + 1].getType() == '.') {
-            return true;
-        } else {
-            return false;
-        }
+    if (x == 0 && y == 0) {
+        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x][y + 1].canTouch();
     }
     //Check top-right corner
     if (x == 0 && y == board.size() - 1) {
-        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x][y - 1].getType() == '.') {
-            return true;
-        } else {
-            return false;
-        }
+        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x][y - 1].canTouch();
     }
     //Check bottom-right corner
     if (x == board.size() - 1 && y == board.size() - 1) {
-        if (board[x][y].getType() == '.' && board[x - 1][y].getType() == '.' && board[x][y - 1].getType() == '.') {
-            return true;
-        } else {
-            return false;
-        }
+        return board[x][y].canTouch() && board[x - 1][y].canTouch() && board[x][y - 1].canTouch();
     }
     //Check bottom-left corner
     if (x == board.size() - 1 && y == 0) {
-        if ((board[x][y].getType() == '.' && board[x - 1][y].getType() == '.' && board[x][y + 1].getType() == '.')) {
-            return true;
-        } else {
-            return false;
-        }
+        return board[x][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch();
     }
     //Check top side
     if (x == 0 && y != 0 && y != board.size() - 1) {
-        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x][y + 1].getType() == '.' &&
-            board[x][y - 1].getType() == '.') {
-            return true;
-        } else {
-            return false;
-        }
+        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x][y + 1].canTouch() && board[x][y - 1].canTouch();
     }
     //Check right side
     if (x != 0 && x != board.size() - 1 && y == board.size() - 1) {
-        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x - 1][y].getType() == '.' &&
-            board[x][y - 1].getType() == '.') {
-            return true;
-        } else {
-            return false;
-        }
+        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() && board[x][y - 1].canTouch();
     }
     //Check bottom side
     if (x == board.size() - 1 && y != 0 && y != board.size() - 1) {
-        if (board[x][y].getType() == '.' && board[x - 1][y].getType() == '.' && board[x][y + 1].getType() == '.' &&
-            board[x][y - 1].getType() == '.') {
-            return true;
-        } else {
-            return false;
-        }
+        return board[x][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch() && board[x][y - 1].canTouch();
     }
     //Check left side
     if (x != 0 && x != board.size() - 1 && y == 0) {
-        if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x - 1][y].getType() == '.' &&
-            board[x][y + 1].getType() == '.') {
-            return true;
-        } else {
-            return false;
-        }
+        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch();
     }
     //Except all sides and corners
-    if (board[x][y].getType() == '.' && board[x + 1][y].getType() == '.' && board[x - 1][y].getType() == '.' &&
-        board[x][y + 1].getType() == '.' && board[x][y - 1].getType() == '.') {
-        return true;
-    } else {
-        return false;
-    }
+    return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch() && board[x][y - 1].canTouch();
+}
 
+void Game::mixTiles() {
+    for (int i = 1; i <= 96; ++i) {
+        string file = "../tiles/" + to_string(i) + ".txt";
+        ifstream myfile(file);
+        if (!myfile.is_open()) {
+            cerr << "Error opening file: " << file << endl;
+        }
+        if (myfile.is_open()) {
+            string line;
+            vector<string> lines;
+            vector<vector<char>> tile;
+            while (getline(myfile, line)) {
+                lines.push_back(line);
+            }
+            for (int j = 0; j < lines.size(); ++j) {
+                string l = lines[j];
+                vector<char> temporary;
+                for (int k = 0; k < l.length(); ++k) {
+                    temporary.push_back(l[k]);
+                }
+                tile.push_back(temporary);
+            }
+            Tile tile1(tile);
+            tile1.display();
+        }
+    }
 }
