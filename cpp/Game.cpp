@@ -5,7 +5,9 @@
 #include <cmath>
 #include <fstream>
 #include <string>
-
+#include <algorithm>
+#include <random>
+#include <chrono>
 using namespace std;
 
 Game::Game() = default;
@@ -203,7 +205,8 @@ void Game::mixTiles() {
                 tile.push_back(temporary);
             }
             Tile tile1(tile);
-            tile1.display();
+            allTiles.push_back(tile1);
         }
     }
+    shuffle(allTiles.begin(), allTiles.end(), std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
 }

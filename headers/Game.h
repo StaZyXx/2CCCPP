@@ -2,10 +2,13 @@
 #define PROJECT_GAME_H
 
 #include "Case.h"
+#include "Tile.h"
 
 class Game {
 private:
     vector<vector<Case>> board;
+
+    vector<Tile> allTiles;
 
     int amountPlayer;
 
