@@ -30,3 +30,4 @@ void Case::setTouch(bool touch) {
     this->touch = touch;
 }
 
+

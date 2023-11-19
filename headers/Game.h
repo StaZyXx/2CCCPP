@@ -14,6 +14,10 @@ private:
 
     vector<Player> players;
 
+    Player* currentPlayer;
+
+    int currentRound = 0;
+
 public:
     void startGame();
 
@@ -30,6 +34,26 @@ public:
     bool checkPlacement(int x, int y);
 
     void mixTiles();
+
+    bool checkPlacementOfTile(Tile tile, int x, int y);
+
+    void initDefault();
+
+    void askAction();
+
+    void placeAction();
+
+    void exchangeAction();
+
+    void stoneAction();
+
+    void robberyAction();
+
+    int getRound();
+
+    void nextPlayer();
+
+    void placeTile(Tile tile, int x, int y);
 };
 
 

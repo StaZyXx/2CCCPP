@@ -8,17 +8,33 @@
 #include <algorithm>
 #include <random>
 #include <chrono>
+
 using namespace std;
 
 Game::Game() = default;
 
+const int MAX_ROUND = 9;
+
 void Game::startGame() {
     //initPlayers();
-    //createBoard();
-    //displayBoard();
-    //placePlayers();
-    mixTiles();
+    initDefault();
+    while (getRound() != MAX_ROUND) {
+        askAction();
+        nextPlayer();
+    }
 }
+
+void Game::initDefault() {
+    amountPlayer = 2;
+    players.push_back(Player("Rouge", "Joueur 1", '1'));
+    players.push_back(Player("Bleu", "Joueur 2", '2'));
+    currentPlayer = &players[0];
+    createBoard();
+    displayBoard();
+    mixTiles();
+    placePlayers();
+}
+
 
 void Game::initPlayers() {
     vector<string> colors = {"Rouge", "Bleu", "Vert", "Jaune", "Violet", "Blanc", "Rose", "Orange", "Marron"};
@@ -116,9 +132,21 @@ void Game::createBoard() {
 }
 
 void Game::displayBoard() {
-    for (auto &i: board) {
+    string *alphabet = new string[board.size()];
+
+    for (int i = 0; i < board.size(); ++i) {
+        alphabet[i] = (char) (i + 65);
+    }
+    cout << " " << endl;
+    cout << "  ";
+    for (int i = 0; i < board.size(); ++i) {
+        cout << alphabet[i] << " ";
+    }
+    cout << endl;
+    for (int i = 0; i < board.size(); ++i) {
+        cout << alphabet[i] << " ";
         for (int j = 0; j < board.size(); ++j) {
-            cout << i[j].getType() << " ";
+            cout << board[i][j].getType() << " ";
         }
         cout << endl;
     }
@@ -126,15 +154,20 @@ void Game::displayBoard() {
 
 void Game::placePlayers() {
     for (int i = 0; i < players.size(); ++i) {
-        int x, y;
+        string xChar, yChar;
         bool validPlacement = false;
         while (!validPlacement) {
             cout << "Joueur " << i << " placez votre case de depart" << endl;
-            cin >> x >> y;
+            cin >> xChar >> yChar;
+            int x = (int) xChar[0] - 65;
+            int y = (int) yChar[0] - 65;
             if (checkPlacement(x, y)) {
                 board[x][y].setPlayer(&players[i]);
                 board[x][y].setType(players[i].getPlayerChar());
                 board[x][y].setTouch(false);
+                cout << allTiles.size() << endl;
+                players[i].setTiles(allTiles);
+                players[i].setCurrentTile(allTiles[0]);
                 displayBoard();
                 validPlacement = true;
             } else {
@@ -144,6 +177,30 @@ void Game::placePlayers() {
     }
 }
 
+void Game::placeTile(Tile tile, int x, int y) {
+    for (int i = 0; i < tile.getTile().size(); ++i) {
+        for (int j = 0; j < tile.getTile()[i].size(); ++j) {
+            if (tile.getTile()[i][j] == '*') {
+                board[x + i][y + j].setPlayer(currentPlayer);
+                board[x + i][y + j].setType(currentPlayer->getPlayerChar());
+                board[x + i][y + j].setTouch(false);
+            }
+        }
+    }
+}
+
+bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
+    for (int i = 0; i < tile.getTile().size(); ++i) {
+        for (int j = 0; j < tile.getTile()[i].size(); ++j) {
+            if (tile.getTile()[i][j] == '*') {
+                if (!checkPlacement(x + i, y + j)) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
 
 bool Game::checkPlacement(int x, int y) {
     //Check top-left corner
@@ -164,43 +221,47 @@ bool Game::checkPlacement(int x, int y) {
     }
     //Check top side
     if (x == 0 && y != 0 && y != board.size() - 1) {
-        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x][y + 1].canTouch() && board[x][y - 1].canTouch();
+        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x][y + 1].canTouch() &&
+               board[x][y - 1].canTouch();
     }
     //Check right side
     if (x != 0 && x != board.size() - 1 && y == board.size() - 1) {
-        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() && board[x][y - 1].canTouch();
+        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() &&
+               board[x][y - 1].canTouch();
     }
     //Check bottom side
     if (x == board.size() - 1 && y != 0 && y != board.size() - 1) {
-        return board[x][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch() && board[x][y - 1].canTouch();
+        return board[x][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch() &&
+               board[x][y - 1].canTouch();
     }
     //Check left side
     if (x != 0 && x != board.size() - 1 && y == 0) {
-        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch();
+        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() &&
+               board[x][y + 1].canTouch();
     }
     //Except all sides and corners
-    return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch() && board[x][y - 1].canTouch();
+    return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() &&
+           board[x][y + 1].canTouch() && board[x][y - 1].canTouch();
 }
 
 void Game::mixTiles() {
     for (int i = 1; i <= 96; ++i) {
         string file = "../tiles/" + to_string(i) + ".txt";
-        ifstream myfile(file);
-        if (!myfile.is_open()) {
+        ifstream tileFileStream(file);
+        if (!tileFileStream.is_open()) {
             cerr << "Error opening file: " << file << endl;
         }
-        if (myfile.is_open()) {
+        if (tileFileStream.is_open()) {
             string line;
             vector<string> lines;
             vector<vector<char>> tile;
-            while (getline(myfile, line)) {
+            while (getline(tileFileStream, line)) {
                 lines.push_back(line);
             }
-            for (int j = 0; j < lines.size(); ++j) {
-                string l = lines[j];
+            for (const auto &l: lines) {
                 vector<char> temporary;
-                for (int k = 0; k < l.length(); ++k) {
-                    temporary.push_back(l[k]);
+                for (char k: l) {
+                    temporary.push_back(k);
                 }
                 tile.push_back(temporary);
             }
@@ -208,5 +269,95 @@ void Game::mixTiles() {
             allTiles.push_back(tile1);
         }
     }
-    shuffle(allTiles.begin(), allTiles.end(), std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
+    shuffle(allTiles.begin(), allTiles.end(),
+            std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
 }
+
+void Game::askAction() {
+    cout << "Joueur " << currentPlayer->getPlayerName() << " c'est a vous de jouer" << endl;
+    cout << "1. Placer une tuile (P)" << endl;
+    cout << "2. Echanger une tuile - " << currentPlayer->getTileExchangeBonus() << " restante (E)" << endl;
+    cout << "3. Voler une tuile - " << currentPlayer->getRobberyBonus() << " restante (V)" << endl;
+    cout << "4. Poser un pion - " << currentPlayer->getStoneBonus() << " restant (S)" << endl;
+
+    string action;
+
+    cin >> action;
+
+    switch (tolower(action[0])) {
+        case 'p':
+            placeAction();
+            break;
+    }
+}
+
+void Game::placeAction() {
+    string xChar, yChar;
+    bool validPlacement = false;
+
+    string action;
+    while (!validPlacement) {
+        cout << "La tuile a poser : " << endl;
+        Tile tile = currentPlayer->getCurrentTile();
+        tile.display();
+
+        cout << "Que voulez vous faire ?" << endl;
+        cout << "1. Rotation (R)" << endl;
+        cout << "2. Flip (F)" << endl;
+        cout << "3. Poser la tuile (P)" << endl;
+
+        cin >> action;
+
+        switch (tolower(action[0])) {
+            case 'r':
+                currentPlayer->setCurrentTile(tile.rotate());
+                break;
+            case 'f':
+                currentPlayer->setCurrentTile(tile.flip());
+                break;
+            case 'p':
+                while (!validPlacement) {
+                    cout << "Entrez les coordonnees de la tuile :" << endl;
+                    cin >> xChar >> yChar;
+                    int x = (int) xChar[0] - 65;
+                    int y = (int) yChar[0] - 65;
+
+                    if (checkPlacementOfTile(tile, x, y)) {
+                        placeTile(tile, x, y);
+                        displayBoard();
+                        validPlacement = true;
+                    } else {
+                        cout << "Merci de rentrer un placement valide" << endl;
+                    }
+                }
+                break;
+        }
+    }
+
+
+}
+
+int Game::getRound() {
+    return currentRound;
+}
+
+void Game::nextPlayer() {
+    if (currentPlayer == nullptr) {
+        currentPlayer = &players[0];
+    } else {
+        for (int i = 0; i < players.size(); ++i) {
+            if (currentPlayer == &players[i]) {
+                if (i == players.size() - 1) {
+                    currentPlayer = &players[0];
+                    currentRound++;
+                } else {
+                    currentPlayer = &players[i + 1];
+                }
+            }
+        }
+    }
+}
+
+
+
+
