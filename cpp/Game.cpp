@@ -208,43 +208,43 @@ bool Game::checkPlacement(int x, int y) {
 
     //Check top-left corner
     if (x == 0 && y == 0) {
-        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x][y + 1].canTouch();
+        return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) && board[x][y + 1].canTouch(currentPlayer);
     }
     //Check top-right corner
     if (x == 0 && y == board.size() - 1) {
-        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x][y - 1].canTouch();
+        return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) && board[x][y - 1].canTouch();
     }
     //Check bottom-right corner
     if (x == board.size() - 1 && y == board.size() - 1) {
-        return board[x][y].canTouch() && board[x - 1][y].canTouch() && board[x][y - 1].canTouch();
+        return board[x][y].canTouch() && board[x - 1][y].canTouch(currentPlayer) && board[x][y - 1].canTouch(currentPlayer);
     }
     //Check bottom-left corner
     if (x == board.size() - 1 && y == 0) {
-        return board[x][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch();
+        return board[x][y].canTouch() && board[x - 1][y].canTouch(currentPlayer) && board[x][y + 1].canTouch(currentPlayer);
     }
     //Check top side
     if (x == 0 && y != 0 && y != board.size() - 1) {
-        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x][y + 1].canTouch() &&
-               board[x][y - 1].canTouch();
+        return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) && board[x][y + 1].canTouch(currentPlayer) &&
+               board[x][y - 1].canTouch(currentPlayer);
     }
     //Check right side
     if (x != 0 && x != board.size() - 1 && y == board.size() - 1) {
-        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() &&
-               board[x][y - 1].canTouch();
+        return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) && board[x - 1][y].canTouch(currentPlayer) &&
+               board[x][y - 1].canTouch(currentPlayer);
     }
     //Check bottom side
     if (x == board.size() - 1 && y != 0 && y != board.size() - 1) {
-        return board[x][y].canTouch() && board[x - 1][y].canTouch() && board[x][y + 1].canTouch() &&
-               board[x][y - 1].canTouch();
+        return board[x][y].canTouch() && board[x - 1][y].canTouch(currentPlayer) && board[x][y + 1].canTouch(currentPlayer) &&
+               board[x][y - 1].canTouch(currentPlayer);
     }
     //Check left side
     if (x != 0 && x != board.size() - 1 && y == 0) {
-        return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() &&
+        return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) && board[x - 1][y].canTouch(currentPlayer) &&
                board[x][y + 1].canTouch();
     }
     //Except all sides and corners
-    return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x - 1][y].canTouch() &&
-           board[x][y + 1].canTouch() && board[x][y - 1].canTouch();
+    return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) && board[x - 1][y].canTouch(currentPlayer) &&
+           board[x][y + 1].canTouch(currentPlayer) && board[x][y - 1].canTouch(currentPlayer);
 }
 
 void Game::mixTiles() {

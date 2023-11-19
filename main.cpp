@@ -8,6 +8,7 @@ int main() {
     Game game = Game();
     //PlaySound("songs/mysound.wav", NULL, SND_FILENAME | SND_SYNC);
     game.startGame();
+
     /*Player *player;
     player = new Player("red", "player1", '1');
 
@@ -35,3 +36,5 @@ int main() {
     player->getCurrentTile().display();*/
     return 0;
 }
+
+

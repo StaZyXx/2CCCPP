@@ -28,6 +28,7 @@ public:
 
     void setType(char type);
 
+    bool canTouch(Player *currentPlayer);
 };
 
 
