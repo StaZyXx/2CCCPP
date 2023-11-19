@@ -203,6 +203,9 @@ bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
 }
 
 bool Game::checkPlacement(int x, int y) {
+    // Le problème ici c'est que on check pas si la case +1 ou -1 est au joueur qui joue ducoup on peut pas coller les cases entre elles
+    // Autre problème pas sur, mais si on colle 2 tile ensemble, on peut pas en mettre une autre a coté vu que c'est une case et donc qu'on peut pas la toucher
+
     //Check top-left corner
     if (x == 0 && y == 0) {
         return board[x][y].canTouch() && board[x + 1][y].canTouch() && board[x][y + 1].canTouch();
@@ -280,15 +283,45 @@ void Game::askAction() {
     cout << "3. Voler une tuile - " << currentPlayer->getRobberyBonus() << " restante (V)" << endl;
     cout << "4. Poser un pion - " << currentPlayer->getStoneBonus() << " restant (S)" << endl;
 
-    string action;
+    bool validAction = false;
 
-    cin >> action;
+    while (!validAction) {
+        string action;
 
-    switch (tolower(action[0])) {
-        case 'p':
-            placeAction();
-            break;
+        cin >> action;
+
+        switch (tolower(action[0])) {
+            case 'p':
+                placeAction();
+                validAction = true;
+                break;
+            case 'e':
+                if (currentPlayer->getTileExchangeBonus() > 0) {
+                    exchangeAction();
+                    validAction = true;
+                } else {
+                    cout << "Vous n'avez plus de bonus d'echange" << endl;
+                }
+                break;
+            case 'v':
+                if (currentPlayer->getRobberyBonus() > 0) {
+                    robberyAction();
+                    validAction = true;
+                } else {
+                    cout << "Vous n'avez plus de bonus de vol" << endl;
+                }
+                break;
+            case 's':
+                if (currentPlayer->getStoneBonus() > 0) {
+                    stoneAction();
+                    validAction = true;
+                } else {
+                    cout << "Vous n'avez plus de bonus de pierre" << endl;
+                }
+                break;
+        }
     }
+
 }
 
 void Game::placeAction() {
@@ -333,8 +366,92 @@ void Game::placeAction() {
                 break;
         }
     }
+}
 
+void Game::exchangeAction() {
+    bool validExchange = false;
 
+    while (!validExchange) {
+        for (int i = 0; i < 5; ++i) {
+            cout << "Tuile " << i + 1 << " : " << endl;
+            currentPlayer->getTiles()[i].display();
+        }
+
+        int tileToExchange;
+
+        cout << "Quelle tuile voulez vous echanger ?" << endl;
+
+        cin >> tileToExchange;
+
+        Tile tile = currentPlayer->takeTile(tileToExchange - 1);
+
+        cout << "Tuile " << tileToExchange << " : " << endl;
+
+        tile.display();
+
+        cout << "êtes vous sur de vouloir echanger cette tuile ? (O/N)" << endl;
+
+        string answer;
+
+        cin >> answer;
+
+        if (tolower(answer[0]) == 'o') {
+            //FIX LA POSITION QUAND ON RE RAJOUTE LA TUILE
+            currentPlayer->addTile(currentPlayer->getCurrentTile());
+            currentPlayer->setCurrentTile(tile);
+            currentPlayer->removeTile(tile);
+            currentPlayer->setTileExchangeBonus(currentPlayer->getTileExchangeBonus() - 1);
+        } else {
+            currentPlayer->addTile(tile);
+            askAction();
+            break;
+        }
+    }
+
+}
+
+void Game::stoneAction() {
+    bool validStone = false;
+
+    while (!validStone) {
+        string xChar, yChar;
+
+        cout << "Entrez les coordonnees de la tuile :" << endl;
+        cin >> xChar >> yChar;
+        int x = (int) xChar[0] - 65;
+        int y = (int) yChar[0] - 65;
+
+        if (board[x][y].getType() == currentPlayer->getPlayerChar()) {
+            //board[x][y].setStone(true);
+            currentPlayer->setStoneBonus(currentPlayer->getStoneBonus() - 1);
+            validStone = true;
+        } else {
+            cout << "Merci de rentrer un placement valide" << endl;
+        }
+    }
+}
+
+void Game::robberyAction() {
+    bool validRobbery = false;
+
+    while (!validRobbery) {
+        string xChar, yChar;
+
+        cout << "Entrez les coordonnees de la tuile :" << endl;
+        cin >> xChar >> yChar;
+        int x = (int) xChar[0] - 65;
+        int y = (int) yChar[0] - 65;
+
+        if (board[x][y].getType() != currentPlayer->getPlayerChar() && board[x][y].getType() != '.') {
+            board[x][y].setPlayer(currentPlayer);
+            board[x][y].setType(currentPlayer->getPlayerChar());
+            board[x][y].setTouch(false);
+            currentPlayer->setRobberyBonus(currentPlayer->getRobberyBonus() - 1);
+            validRobbery = true;
+        } else {
+            cout << "Merci de rentrer un placement valide" << endl;
+        }
+    }
 }
 
 int Game::getRound() {

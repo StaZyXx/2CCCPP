@@ -12,7 +12,6 @@ vector<vector<char>> Tile::getTile() {
 }
 
 void Tile::display() {
-    cout << "Tile : " << endl;
     for (int i = 0; i < tile.size(); ++i) {
         for (int j = 0; j < tile[i].size(); ++j) {
             cout << tile[i][j];

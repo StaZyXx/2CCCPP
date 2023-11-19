@@ -15,13 +15,13 @@ private:
 
     char playerChar;
 
-    Tile currentTile = Tile({});
+    Tile currentTile = Tile({{' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '}});
 
     vector<Tile> tiles;
 
-    int tileExchangeBonus = 0;
-    int stoneBonus = 0;
-    int robberyBonus = 0;
+    int tileExchangeBonus = 5;
+    int stoneBonus = 5;
+    int robberyBonus = 5;
 
 public:
     string getPlayerColor();
