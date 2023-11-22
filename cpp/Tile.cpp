@@ -14,7 +14,11 @@ vector<vector<char>> Tile::getTile() {
 void Tile::display() {
     for (int i = 0; i < tile.size(); ++i) {
         for (int j = 0; j < tile[i].size(); ++j) {
-            cout << tile[i][j];
+            if (tile[i][j] == '0'){
+                cout << ' ';
+            }else{
+                cout << tile[i][j];
+            }
         }
         cout << endl;
     }
@@ -22,51 +26,25 @@ void Tile::display() {
 
 Tile Tile::rotate() {
     vector<vector<char>> newTile;
-
-    // Find the new dimensions after rotation
-    size_t newRows = tile[0].size();
-    size_t newCols = tile.size();
-
-    for (size_t i = 0; i < newRows; ++i) {
+    for (int i = 0; i < tile[0].size(); ++i) {
         vector<char> row;
-        bool keepSpaces = false;  // Flag to determine whether to keep spaces for the current row
-
-        for (size_t j = 0; j < newCols; ++j) {
-            char t = (i < tile[j].size()) ? tile[j][tile[j].size() - i - 1] : ' ';
-
-            if (t == '*') {
-                keepSpaces = true;  // Set the flag to true if '*' is encountered
-                break;  // Exit the loop once '*' is found in the current row
-            }
+        for (int j = tile.size() - 1; j >= 0; --j) {
+            row.push_back(tile[j][i]);
         }
-
-        // Process the current row based on the keepSpaces flag
-        for (size_t j = 0; j < newCols; ++j) {
-            char t = (i < tile[j].size()) ? tile[j][tile[j].size() - i - 1] : ' ';
-
-            if (keepSpaces || t == '*') {
-                row.push_back(t);
-            }
-        }
-
-        if (!row.empty())
-            newTile.push_back(row);
+        newTile.push_back(row);
     }
-
-    // Update the tile after rotation
-    tile = newTile;
-    return *this;
+    return {newTile};
 }
 
 Tile Tile::flip() {
     vector<vector<char>> newTile;
-    for (int i = 0; i < tile.size(); ++i) {
+    for (auto & i : tile) {
         vector<char> row;
-        row.reserve(tile[i].size());
-        for (int j = 0; j < tile[i].size(); ++j) {
-            row.push_back(tile[i][tile[i].size() - j - 1]);
+        row.reserve(i.size());
+        for (int j = 0; j < i.size(); ++j) {
+            row.push_back(i[i.size() - j - 1]);
         }
         newTile.push_back(row);
     }
-    return Tile(newTile);
+    return {newTile};
 }

@@ -273,7 +273,7 @@ void Game::mixTiles() {
         }
     }
     shuffle(allTiles.begin(), allTiles.end(),
-            std::default_random_engine(std::chrono::system_clock::now().time_since_epoch().count()));
+            default_random_engine(chrono::system_clock::now().time_since_epoch().count()));
 }
 
 void Game::askAction() {
