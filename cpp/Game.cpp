@@ -23,9 +23,9 @@ void Game::startGame() {
         nextPlayer();
     }
 }
-
 void Game::initDefault() {
     amountPlayer = 2;
+
     players.push_back(Player("Rouge", "Joueur 1", '1'));
     players.push_back(Player("Bleu", "Joueur 2", '2'));
     currentPlayer = &players[0];
