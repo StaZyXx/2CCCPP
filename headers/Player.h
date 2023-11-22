@@ -15,10 +15,6 @@ private:
 
     char playerChar;
 
-    Tile currentTile = Tile({{' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '}});
-
-    vector<Tile> tiles;
-
     int tileExchangeBonus = 5;
     int stoneBonus = 5;
     int robberyBonus = 5;
@@ -32,24 +28,6 @@ public:
 
     Player(string PlayerColor, string PlayerName, char PlayerChar);
 
-    Tile getCurrentTile() const;
-
-    void setCurrentTile(Tile currentTile);
-
-    vector<Tile> getTiles();
-
-    vector<Tile> getTiles(int amount);
-
-    void setTiles(vector<Tile> tiles);
-
-    void addTile(Tile tile);
-
-    void removeTile(Tile tile);
-
-    Tile takeTile(int index);
-
-    Tile takeFirstTile();
-
     int getTileExchangeBonus() const;
 
     void setTileExchangeBonus(int tileExchangeBonus);
@@ -61,6 +39,17 @@ public:
     int getRobberyBonus() const;
 
     void setRobberyBonus(int robberyBonus);
+
+    bool operator()(const Player &lhs, const Player &rhs) const {
+        return lhs.getPlayerName() < rhs.getPlayerName();
+    }
+};
+
+struct PlayerCompare {
+    bool operator() (const Player& lhs, const Player& rhs) const {
+        // Implémentez votre logique de comparaison ici, par exemple, comparez les identifiants
+        return lhs.getPlayerName() < rhs.getPlayerName();
+    }
 };
 
 

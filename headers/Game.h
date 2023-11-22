@@ -8,13 +8,15 @@ class Game {
 private:
     vector<vector<Case>> board;
 
+    Tile currentTile = Tile(0, {});
+
     vector<Tile> allTiles;
 
     int amountPlayer;
 
     vector<Player> players;
 
-    Player* currentPlayer;
+    Player *currentPlayer;
 
     int currentRound = 0;
 
@@ -22,6 +24,20 @@ public:
     void startGame();
 
     Game();
+
+    Tile getCurrentTile() const;
+
+    void setCurrentTile(Tile currentTile);
+
+    Tile takeFirstTile();
+
+    Tile takeTile(int index);
+
+    void setTile(Tile tile, int index);
+
+    void setFirstTile(const Tile& tile);
+
+    void removeTile(const Tile& tile);
 
     void initPlayers();
 
@@ -56,6 +72,8 @@ public:
     void placeTile(Tile tile, int x, int y);
 
     void getBonus();
+
+    Player checkWinner();
 };
 
 

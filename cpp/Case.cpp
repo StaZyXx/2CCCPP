@@ -28,7 +28,7 @@ bool Case::canTouch() {
 
 bool Case::canTouch(Player *currentPlayer){
     if (this->player == nullptr) {
-        return true;
+        return canTouch();
     } else if (this->player->getPlayerName() == currentPlayer->getPlayerName()) {
         return true;
     } else {

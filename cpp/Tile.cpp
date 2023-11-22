@@ -3,11 +3,14 @@
 
 #include "../headers/Tile.h"
 
-Tile::Tile(vector<vector<char>> tile) {
+using namespace std;
+
+Tile::Tile(int id, vector<vector<char>> tile) {
+    this->id = id;
     this->tile = std::move(tile);
 }
 
-vector<vector<char>> Tile::getTile() {
+vector<vector<char>> Tile::getTile() const {
     return tile;
 }
 
@@ -33,7 +36,7 @@ Tile Tile::rotate() {
         }
         newTile.push_back(row);
     }
-    return {newTile};
+    return {id, newTile};
 }
 
 Tile Tile::flip() {
@@ -46,5 +49,9 @@ Tile Tile::flip() {
         }
         newTile.push_back(row);
     }
-    return {newTile};
+    return {id, newTile};
+}
+
+int Tile::getId() const {
+    return id;
 }

@@ -1,8 +1,8 @@
 #include "../headers/Game.h"
-#include "../headers/Tile.h"
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <map>
 #include <fstream>
 #include <string>
 #include <algorithm>
@@ -13,15 +13,18 @@ using namespace std;
 
 Game::Game() = default;
 
-const int MAX_ROUND = 9;
+const int MAX_ROUND = 3;
 
 void Game::startGame() {
     //initPlayers();
     initDefault();
     while (getRound() != MAX_ROUND) {
         askAction();
+        getBonus();
         nextPlayer();
     }
+
+    checkWinner();
 }
 
 void Game::initDefault() {
@@ -91,9 +94,9 @@ void Game::createBoard() {
     } else {
         boardSize = 30;
     }
-    for (int i = 0; i < boardSize - 1; ++i) {
+    for (int i = 0; i < boardSize; ++i) {
         vector<Case> line;
-        for (int j = 0; j < boardSize - 1; ++j) {
+        for (int j = 0; j < boardSize; ++j) {
             Case aCase(Case::NONE, nullptr, '.');
             aCase.setTouch(true);
             line.push_back(aCase);
@@ -133,21 +136,18 @@ void Game::createBoard() {
 }
 
 void Game::displayBoard() {
-    string *alphabet = new string[board.size()];
-
-    for (int i = 0; i < board.size(); ++i) {
-        alphabet[i] = (char) (i + 65);
-    }
     cout << " " << endl;
-    cout << "  ";
+    cout << string(to_string(board.size()).length() + 1, ' ');
     for (int i = 0; i < board.size(); ++i) {
-        cout << alphabet[i] << " ";
+        int amountSpace = 3 - to_string(i).length();
+        cout << i << string(amountSpace, ' ');
     }
     cout << endl;
     for (int i = 0; i < board.size(); ++i) {
-        cout << alphabet[i] << " ";
+        int amountSpace = 3 - to_string(i).length();
+        cout << i << string(amountSpace, ' ');
         for (int j = 0; j < board.size(); ++j) {
-            cout << board[i][j].getType() << " ";
+            cout << board[i][j].getType() << "  ";
         }
         cout << endl;
     }
@@ -155,20 +155,16 @@ void Game::displayBoard() {
 
 void Game::placePlayers() {
     for (int i = 0; i < players.size(); ++i) {
-        string xChar, yChar;
+        int x, y;
         bool validPlacement = false;
         while (!validPlacement) {
             cout << "Joueur " << i << " placez votre case de depart" << endl;
-            cin >> xChar >> yChar;
-            int x = (int) xChar[0] - 65;
-            int y = (int) yChar[0] - 65;
+            cin >> x >> y;
             if (checkPlacement(x, y)) {
                 board[x][y].setPlayer(&players[i]);
                 board[x][y].setType(players[i].getPlayerChar());
                 board[x][y].setTouch(false);
                 cout << allTiles.size() << endl;
-                players[i].setTiles(allTiles);
-                players[i].setCurrentTile(allTiles[0]);
                 displayBoard();
                 validPlacement = true;
             } else {
@@ -202,14 +198,31 @@ void Game::placeTile(Tile tile, int x, int y) {
             }
         }
     }
-    getBonus();
+    removeTile(tile);
+    currentTile = takeFirstTile();
 }
 
 bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
     for (int i = 0; i < tile.getTile().size(); ++i) {
         for (int j = 0; j < tile.getTile()[i].size(); ++j) {
-            if (tile.getTile()[i][j] == '1') {
-                if (!checkPlacement(x + i, y + j)) {
+            if (tile.getTile()[i][j] != '0') {
+                int startX = -1;
+                int startY = -1;
+                for (int k = 0; k < tile.getTile().size(); ++k) {
+                    for (int l = 0; l < tile.getTile()[k].size(); ++l) {
+                        if (tile.getTile()[k][l] == '1') {
+                            startX = k;
+                            startY = l;
+                            break;
+                        }
+                    }
+                    if (startX != -1) {
+                        break;
+                    }
+                }
+
+                if (x - startX + 1 < 0 || y - startY + 1 < 0 || x + i - startX >= board.size() ||
+                    y + j - startY >= board.size() || !checkPlacement(x + i, y + j)) {
                     cout << "La tuile ne peut pas etre placee ici" << endl;
                     return false;
                 }
@@ -299,12 +312,14 @@ void Game::mixTiles() {
                 }
                 tile.push_back(temporary);
             }
-            Tile tile1(tile);
+            Tile tile1(i, tile);
             allTiles.push_back(tile1);
         }
     }
     shuffle(allTiles.begin(), allTiles.end(),
             default_random_engine(chrono::system_clock::now().time_since_epoch().count()));
+
+    currentTile = takeFirstTile();
 }
 
 void Game::askAction() {
@@ -355,14 +370,13 @@ void Game::askAction() {
 }
 
 void Game::placeAction() {
-    string xChar, yChar;
+    int x, y;
     bool validPlacement = false;
 
     string action;
     while (!validPlacement) {
         cout << "La tuile a poser : " << endl;
-        Tile tile = currentPlayer->getCurrentTile();
-        tile.display();
+        currentTile.display();
 
         cout << "Que voulez vous faire ?" << endl;
         cout << "1. Rotation (R)" << endl;
@@ -373,20 +387,18 @@ void Game::placeAction() {
 
         switch (tolower(action[0])) {
             case 'r':
-                currentPlayer->setCurrentTile(tile.rotate());
+                currentTile = currentTile.rotate();
                 break;
             case 'f':
-                currentPlayer->setCurrentTile(tile.flip());
+                currentTile = currentTile.flip();
                 break;
             case 'p':
                 while (!validPlacement) {
                     cout << "Entrez les coordonnees de la tuile :" << endl;
-                    cin >> xChar >> yChar;
-                    int x = (int) xChar[0] - 65;
-                    int y = (int) yChar[0] - 65;
+                    cin >> x >> y;
 
-                    if (checkPlacementOfTile(tile, x, y)) {
-                        placeTile(tile, x, y);
+                    if (checkPlacementOfTile(currentTile, x, y)) {
+                        placeTile(currentTile, x, y);
                         displayBoard();
                         validPlacement = true;
                     } else {
@@ -404,28 +416,14 @@ void Game::exchangeAction() {
     while (!validExchange) {
         for (int i = 0; i < 5; ++i) {
             cout << "Tuile " << i + 1 << " : " << endl;
-            currentPlayer->getTiles()[i].display();
+            allTiles[i].display();
         }
         int tileToExchange;
         cout << "Quelle tuile voulez vous echanger ?" << endl;
         cin >> tileToExchange;
-        Tile tile = currentPlayer->takeTile(tileToExchange - 1);
-        cout << "Tuile " << tileToExchange << " : " << endl;
-        tile.display();
-        cout << "êtes vous sur de vouloir echanger cette tuile ? (O/N)" << endl;
-        string answer;
-        cin >> answer;
-        if (tolower(answer[0]) == 'o') {
-            //FIX LA POSITION QUAND ON RE RAJOUTE LA TUILE
-            currentPlayer->addTile(currentPlayer->getCurrentTile());
-            currentPlayer->setCurrentTile(tile);
-            currentPlayer->removeTile(tile);
-            currentPlayer->setTileExchangeBonus(currentPlayer->getTileExchangeBonus() - 1);
-        } else {
-            currentPlayer->addTile(tile);
-            askAction();
-            break;
-        }
+        Tile tile = takeTile(tileToExchange - 1);
+        currentTile = tile;
+        currentPlayer->setTileExchangeBonus(currentPlayer->getTileExchangeBonus() - 1);
     }
 }
 
@@ -433,12 +431,10 @@ void Game::stoneAction() {
     bool validStone = false;
 
     while (!validStone) {
-        string xChar, yChar;
+        int x, y;
 
         cout << "Entrez les coordonnees de la tuile :" << endl;
-        cin >> xChar >> yChar;
-        int x = (int) xChar[0] - 65;
-        int y = (int) yChar[0] - 65;
+        cin >> x >> y;
 
         if (board[x][y].getType() == currentPlayer->getPlayerChar()) {
             //board[x][y].setStone(true);
@@ -454,12 +450,10 @@ void Game::robberyAction() {
     bool validRobbery = false;
 
     while (!validRobbery) {
-        string xChar, yChar;
+        int x, y;
 
         cout << "Entrez les coordonnees de la tuile :" << endl;
-        cin >> xChar >> yChar;
-        int x = (int) xChar[0] - 65;
-        int y = (int) yChar[0] - 65;
+        cin >> x >> y;
 
         if (board[x][y].getType() != currentPlayer->getPlayerChar() && board[x][y].getType() != '.') {
             board[x][y].setPlayer(currentPlayer);
@@ -478,19 +472,11 @@ int Game::getRound() {
 }
 
 void Game::nextPlayer() {
-    if (currentPlayer == nullptr) {
+    if (currentPlayer == &players[players.size() - 1]) {
         currentPlayer = &players[0];
+        currentRound++;
     } else {
-        for (int i = 0; i < players.size(); ++i) {
-            if (currentPlayer == &players[i]) {
-                if (i == players.size() - 1) {
-                    currentPlayer = &players[0];
-                    currentRound++;
-                } else {
-                    currentPlayer = &players[i + 1];
-                }
-            }
-        }
+        currentPlayer = &players[players.size() - 1];
     }
 }
 
@@ -527,3 +513,88 @@ void Game::getBonus() {
     }
 
 }
+
+Tile Game::getCurrentTile() const {
+    return currentTile;
+}
+
+void Game::setCurrentTile(Tile currentTile) {
+    Game::currentTile = currentTile;
+}
+
+Tile Game::takeFirstTile() {
+    return allTiles[0];
+}
+
+Tile Game::takeTile(int index) {
+    return allTiles[index];
+}
+
+void Game::setTile(Tile tile, int index) {
+    allTiles.insert(allTiles.begin() + index, tile);
+}
+
+void Game::setFirstTile(const Tile &tile) {
+    allTiles.insert(allTiles.begin(), tile);
+}
+
+void Game::removeTile(const Tile &tile) {
+    cout << allTiles.size() << endl;
+    for (int i = 0; i < allTiles.size(); ++i) {
+        if (allTiles[i].getId() == tile.getId()) {
+            allTiles.erase(allTiles.begin() + i);
+        }
+    }
+    cout << allTiles.size() << endl;
+}
+
+
+Player Game::checkWinner() {
+    map<Player, int, PlayerCompare> scores;
+    for (auto item: players) {
+        int maxScore = 0;
+        for (int i = 0; i < board.size(); ++i) {
+            for (int j = 0; j < board.size(); ++j) {
+                bool continueLoop = true;
+
+                while (continueLoop) {
+                    int radius = 1;
+                    for (int k = 0; k < radius; ++k) {
+                        for (int l = 0; l < radius; ++l) {
+                            if (i + k < board.size() && j + l < board.size()) {
+                                if (board[i + k][j + l].getPlayer() != &item) {
+                                    continueLoop = false;
+                                }
+                            }
+                        }
+                    }
+                    if (continueLoop) {
+                        maxScore++;
+                    }
+                    radius++;
+                }
+            }
+        }
+        scores[item] = maxScore;
+    }
+    scores.erase(
+            max_element(scores.begin(), scores.end(), [](const pair<Player, int> &p1, const pair<Player, int> &p2) {
+                return p1.second < p2.second;
+            }));
+
+    cout << scores.begin()->first.getPlayerName() << " a gagne avec " << scores.begin()->second << " points" << endl;
+    cout << "Felicitation !" << endl;
+
+    // Display other players scores
+    for (auto item: scores) {
+        if (item.first.getPlayerName() != scores.begin()->first.getPlayerName()) {
+            cout << item.first.getPlayerName() << " a " << item.second << " points" << endl;
+        }
+    }
+
+    return scores.begin()->first;
+}
+
+
+
+
