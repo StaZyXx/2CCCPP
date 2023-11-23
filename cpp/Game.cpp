@@ -524,7 +524,7 @@ void Game::removeStone() {
         cout << "Entrez les coordonnees de la tuile :" << endl;
         cin >> x >> y;
 
-        if (isInBoard(x, y) && board[x][y].getType() == 'S' && board[x][y].getIsStone()) {
+        if (isInBoard(x, y) && board[x][y].getIsStone()) {
             board[x][y].setStone(false);
             currentPlayer->setTileExchangeBonus(currentPlayer->getTileExchangeBonus() - 1);
             validStone = true;
@@ -626,7 +626,8 @@ void Game::removeTile(const Tile &tile) {
     cout << allTiles.size() << endl;
 }
 
-
+// checkWinner() is a function that checks the winner of the game
+// Check each case
 Player Game::checkWinner() {
     map<Player, int, PlayerCompare> scores;
     for (const auto &item: players) {
@@ -664,6 +665,7 @@ Player Game::checkWinner() {
     return scores.begin()->first;
 }
 
+// deleteTile() is a function for deleting a tile from the board (used for the robbery bonus)
 void Game::deleteTile(Tile tile, int x, int y) {
     int startX = -1;
     int startY = -1;
@@ -690,6 +692,8 @@ void Game::deleteTile(Tile tile, int x, int y) {
     }
 }
 
+// placeLastTile() is a function that allows the player to place the last tile of the game (the 1x1 tile)
+// It is called when all players have placed their tiles and have no more tile exchange bonus
 void Game::placeLastTile() {
     bool validPlacement = false;
     while (!validPlacement) {
