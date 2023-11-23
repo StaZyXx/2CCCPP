@@ -23,6 +23,12 @@ public:
     Tile rotate();
 
     Tile flip();
+
+    void displayInline(int row);
+
+    void setConsoleColor(int textColor, int bgColor);
+
+    void resetConsoleColor();
 };
 
 

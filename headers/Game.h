@@ -74,6 +74,8 @@ public:
     void getBonus();
 
     Player checkWinner();
+
+    void display5Tiles();
 };
 
 

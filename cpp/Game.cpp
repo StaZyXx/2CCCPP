@@ -34,8 +34,9 @@ void Game::initDefault() {
     players.push_back(Player("Bleu", "Joueur 2", '2'));
     currentPlayer = &players[0];
     createBoard();
-    displayBoard();
     mixTiles();
+    display5Tiles();
+    displayBoard();
     placePlayers();
 }
 
@@ -134,7 +135,31 @@ void Game::createBoard() {
         }
     }
 }
+void Game::display5Tiles() {
+    // Trouver la taille maximale parmi toutes les tuiles
+    int maxSize = 0;
+    for (const Tile& tile : allTiles) {
+        int tileSize = tile.getTile().size();
+        if (tileSize > maxSize) {
+            maxSize = tileSize;
+        }
+    }
 
+    // Afficher les tuiles
+    for (int i = 0; i < maxSize; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            if (i < allTiles[j].getTile().size()) {
+                allTiles[j].displayInline(i);
+            } else {
+                // Si la tuile est plus petite que maxSize, afficher des espaces
+                cout << "    ";
+            }
+
+            cout << "    "; // Ajouter de l'espace entre les tuiles
+        }
+        cout << endl;
+    }
+}
 void Game::displayBoard() {
     cout << " " << endl;
     cout << string(to_string(board.size()).length() + 1, ' ');
@@ -165,6 +190,7 @@ void Game::placePlayers() {
                 board[x][y].setType(players[i].getPlayerChar());
                 board[x][y].setTouch(false);
                 cout << allTiles.size() << endl;
+                display5Tiles();
                 displayBoard();
                 validPlacement = true;
             } else {
@@ -399,6 +425,7 @@ void Game::placeAction() {
 
                     if (checkPlacementOfTile(currentTile, x, y)) {
                         placeTile(currentTile, x, y);
+                        display5Tiles();
                         displayBoard();
                         validPlacement = true;
                     } else {

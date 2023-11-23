@@ -1,9 +1,18 @@
 #include <utility>
 #include <algorithm>
+#include <windows.h>
 
 #include "../headers/Tile.h"
 
 using namespace std;
+void Tile::setConsoleColor(int textColor, int bgColor)
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (textColor +(bgColor * 16)));
+}
+void Tile::resetConsoleColor()
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+}
 
 Tile::Tile(int id, vector<vector<char>> tile) {
     this->id = id;
@@ -24,6 +33,22 @@ void Tile::display() {
             }
         }
         cout << endl;
+    }
+}
+
+void Tile::displayInline(int row) {
+    for (int j = 0; j < tile[row].size(); ++j) {
+        if (tile[row][j] == '0') {
+            cout << ' ';
+        } else if (tile[row][j] == '1') {
+            setConsoleColor(4, 4);
+            cout << tile[row][j];
+            resetConsoleColor();
+        } else {
+            setConsoleColor(8, 8);
+            cout << tile[row][j];
+            resetConsoleColor();
+        }
     }
 }
 
