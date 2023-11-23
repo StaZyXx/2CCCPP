@@ -17,6 +17,10 @@ const int MAX_ROUND = 3;
 
 void Game::startGame() {
     initPlayers();
+    createBoard();
+    mixTiles();
+    displayBoard();
+    placePlayers();
     //initDefault();
     while (getRound() != MAX_ROUND) {
         askAction();
@@ -100,6 +104,7 @@ void Game::initPlayers() {
         }
         players.push_back(Player(playerColor, playerName, playerName[0]));
     }
+    currentPlayer = &players[0];
 }
 
 void Game::createBoard() {
@@ -276,8 +281,8 @@ bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
                         break;
                     }
                 }
-                if (isInBoard(x + i - startX, y + j - startY) || isInBoard(x - startX + 1, y - startY + 1) ||
-                    !checkPlacement(x + i, y + j)) {
+                if (!isInBoard(x + i - startX, y + j - startY) || !isInBoard(x - startX + 1, y - startY + 1) ||
+                    !checkPlacement(x + i - startX, y + j - startY)) {
                     cout << "La tuile ne peut pas etre placee ici" << endl;
                     return false;
                 }
@@ -382,7 +387,8 @@ void Game::askAction() {
     cout << "2. Echanger une tuile - " << currentPlayer->getTileExchangeBonus() << " restante (E)" << endl;
     cout << "3. Voler une tuile - " << currentPlayer->getRobberyBonus() << " restante (V)" << endl;
     cout << "4. Poser un pion - " << currentPlayer->getStoneBonus() << " restant (S)" << endl;
-    cout << "5. Retirer une tuile en stone (1 coupon d'échange) - " << currentPlayer->getTileExchangeBonus() << " restant (D)" << endl;
+    cout << "5. Retirer une tuile en stone (1 coupon d'echange) - " << currentPlayer->getTileExchangeBonus()
+         << " restant (D)" << endl;
 
     bool validAction = false;
 
@@ -421,18 +427,20 @@ void Game::askAction() {
                 }
                 break;
             case 'd':
-                if (currentPlayer->getTileExchangeBonus() > 0){
+                if (currentPlayer->getTileExchangeBonus() > 0) {
                     removeStone();
                     validAction = true;
                 } else {
                     cout << "Vous n'avez plus de bonus d'echange" << endl;
                 }
+            default:
+                cout << "Merci de rentrer une action valide" << endl;
+                break;
         }
     }
 }
 
 void Game::placeAction() {
-    int x, y;
     bool validPlacement = false;
 
     string action;
@@ -456,6 +464,7 @@ void Game::placeAction() {
                 break;
             case 'p':
                 while (!validPlacement) {
+                    int x, y;
                     cout << "Entrez les coordonnees de la tuile :" << endl;
                     cin >> x >> y;
 
@@ -468,6 +477,9 @@ void Game::placeAction() {
                         cout << "Merci de rentrer un placement valide" << endl;
                     }
                 }
+                break;
+            default:
+                cout << "Merci de rentrer une action valide" << endl;
                 break;
         }
     }
