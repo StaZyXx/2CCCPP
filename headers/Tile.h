@@ -29,6 +29,7 @@ public:
     void setConsoleColor(int textColor, int bgColor);
 
     void resetConsoleColor();
+
 };
 
 

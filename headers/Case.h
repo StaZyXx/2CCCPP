@@ -10,6 +10,8 @@ private:
     char type;
 
     bool touch = false;
+
+    bool isStone = false;
 public:
     enum BonusType {EXCHANGE_TILE, STONE_TILE, ROBBERY_TILE, NONE};
     BonusType bonus;
@@ -29,6 +31,10 @@ public:
     void setType(char type);
 
     bool canTouch(Player *currentPlayer);
+
+    void setStone(bool value);
+
+    bool getIsStone();
 };
 
 

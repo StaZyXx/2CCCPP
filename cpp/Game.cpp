@@ -16,8 +16,8 @@ Game::Game() = default;
 const int MAX_ROUND = 3;
 
 void Game::startGame() {
-    //initPlayers();
-    initDefault();
+    initPlayers();
+    //initDefault();
     while (getRound() != MAX_ROUND) {
         askAction();
         getBonus();
@@ -382,6 +382,7 @@ void Game::askAction() {
     cout << "2. Echanger une tuile - " << currentPlayer->getTileExchangeBonus() << " restante (E)" << endl;
     cout << "3. Voler une tuile - " << currentPlayer->getRobberyBonus() << " restante (V)" << endl;
     cout << "4. Poser un pion - " << currentPlayer->getStoneBonus() << " restant (S)" << endl;
+    cout << "5. Retirer une tuile en stone (1 coupon d'échange) - " << currentPlayer->getTileExchangeBonus() << " restant (D)" << endl;
 
     bool validAction = false;
 
@@ -419,6 +420,13 @@ void Game::askAction() {
                     cout << "Vous n'avez plus de bonus de pierre" << endl;
                 }
                 break;
+            case 'd':
+                if (currentPlayer->getTileExchangeBonus() > 0){
+                    removeStone();
+                    validAction = true;
+                } else {
+                    cout << "Vous n'avez plus de bonus d'echange" << endl;
+                }
         }
     }
 }
@@ -487,13 +495,30 @@ void Game::stoneAction() {
 
     while (!validStone) {
         int x, y;
-
         cout << "Entrez les coordonnees de la tuile :" << endl;
         cin >> x >> y;
 
-        if (board[x][y].getPlayer()->getPlayerName() != currentPlayer->getPlayerName()) {
-            //board[x][y].setStone(true);
+        if (isInBoard(x, y) && board[x][y].getType() == '.') {
+            board[x][y].setStone(true);
             currentPlayer->setStoneBonus(currentPlayer->getStoneBonus() - 1);
+            validStone = true;
+        } else {
+            cout << "Merci de rentrer un placement valide" << endl;
+        }
+    }
+}
+
+void Game::removeStone() {
+    bool validStone = false;
+
+    while (!validStone) {
+        int x, y;
+        cout << "Entrez les coordonnees de la tuile :" << endl;
+        cin >> x >> y;
+
+        if (isInBoard(x, y) && board[x][y].getType() == 'S' && board[x][y].getIsStone()) {
+            board[x][y].setStone(false);
+            currentPlayer->setTileExchangeBonus(currentPlayer->getTileExchangeBonus() - 1);
             validStone = true;
         } else {
             cout << "Merci de rentrer un placement valide" << endl;

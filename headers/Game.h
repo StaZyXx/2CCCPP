@@ -81,6 +81,8 @@ public:
     void placeLastTile();
 
     bool isInBoard(int x, int y);
+
+    void removeStone();
 };
 
 

@@ -1,5 +1,6 @@
 #include "../headers/Case.h"
 
+
 Player *Case::getPlayer() const {
     return player;
 }
@@ -38,6 +39,14 @@ bool Case::canTouch(Player *currentPlayer){
 
 void Case::setTouch(bool touch) {
     this->touch = touch;
+}
+
+bool Case::getIsStone() {
+    return isStone;
+}
+
+void Case::setStone(bool value) {
+    this->isStone = value;
 }
 
 
