@@ -35,7 +35,6 @@ void Game::initDefault() {
     currentPlayer = &players[0];
     createBoard();
     mixTiles();
-    display5Tiles();
     displayBoard();
     placePlayers();
 
@@ -154,25 +153,37 @@ void Game::createBoard() {
     }
 }
 void Game::display5Tiles() {
-    // Trouver la taille maximale parmi toutes les tuiles
-    int maxSize = 0;
+    // Trouver la hauteur maximale et la largeur maximale parmi toutes les tuiles
+    int maxHeight = 0;
+    int maxWidth = 0;
     for (const Tile& tile : allTiles) {
-        int tileSize = tile.getTile().size();
-        if (tileSize > maxSize) {
-            maxSize = tileSize;
+        int tileHeight = tile.getTile().size();
+        int tileWidth = tile.getTile()[0].size(); // On suppose que toutes les lignes de la tuile ont la même largeur
+        if (tileHeight > maxHeight) {
+            maxHeight = tileHeight;
+        }
+        if (tileWidth > maxWidth) {
+            maxWidth = tileWidth;
         }
     }
 
     // Afficher les tuiles
-    for (int i = 0; i < maxSize; ++i) {
+    for (int i = 0; i < maxHeight; ++i) {
         for (int j = 0; j < 5; ++j) {
-            if (i < allTiles[j].getTile().size()) {
+            vector<vector<char>> currentTile = allTiles[j].getTile();
+
+            if (i < currentTile.size()) {
+                int spaces = maxWidth - currentTile[i].size();
                 allTiles[j].displayInline(i);
+                for (int k = 0; k < spaces; ++k) {
+                    cout << " "; // Ajouter des espaces pour aligner les tuiles
+                }
             } else {
                 // Si la tuile est plus petite que maxSize, afficher des espaces
-                cout << "    ";
+                for (int k = 0; k < maxWidth; ++k) {
+                    cout << " ";
+                }
             }
-
             cout << "    "; // Ajouter de l'espace entre les tuiles
         }
         cout << endl;
@@ -208,7 +219,6 @@ void Game::placePlayers() {
                 board[x][y].setType(players[i].getPlayerChar());
                 board[x][y].setTouch(false);
                 cout << allTiles.size() << endl;
-                display5Tiles();
                 displayBoard();
                 validPlacement = true;
             } else {
