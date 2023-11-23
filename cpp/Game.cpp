@@ -216,7 +216,7 @@ void Game::placePlayers() {
         int x, y;
         bool validPlacement = false;
         while (!validPlacement) {
-            cout << "Joueur " << i << " placez votre case de depart" << endl;
+            cout << "Joueur " << i + 1 << " placez votre case de depart" << endl;
             cin >> x >> y;
             if (checkPlacement(x, y)) {
                 board[x][y].setPlayer(&players[i]);
