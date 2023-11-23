@@ -9,6 +9,14 @@ int main() {
     //PlaySound("songs/mysound.wav", NULL, SND_FILENAME | SND_SYNC);
     game.startGame();
 
+    /*Game game = Game();
+
+    game.initDefault();
+
+    game.displayBoard();
+
+    game.checkWinner();*/
+
     /*Player *player;
     player = new Player("red", "player1", '1');
 

@@ -18,6 +18,22 @@ char Player::getPlayerChar() const {
     return playerChar;
 }
 
+char Player::getCurrentChar() const {
+    return tiles.size() + 64;
+}
+
+void Player::addTile(const Tile& tile) {
+    tiles.insert(pair<char, Tile>(65 - tiles.size(), tile));
+}
+
+void Player::removeTile(char id) {
+    tiles.erase(id);
+}
+
+Tile Player::getTile(char id) {
+    return tiles.at(id);
+}
+
 int Player::getTileExchangeBonus() const {
     return tileExchangeBonus;
 }

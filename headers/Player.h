@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include "Tile.h"
 
 using namespace std;
@@ -19,6 +20,8 @@ private:
     int stoneBonus = 5;
     int robberyBonus = 5;
 
+    map<char, Tile> tiles;
+
 public:
     string getPlayerColor();
 
@@ -27,6 +30,14 @@ public:
     char getPlayerChar() const;
 
     Player(string PlayerColor, string PlayerName, char PlayerChar);
+
+    char getCurrentChar() const;
+
+    void addTile(const Tile &tile);
+
+    void removeTile(char id);
+
+    Tile getTile(char id);
 
     int getTileExchangeBonus() const;
 
@@ -43,10 +54,12 @@ public:
     bool operator()(const Player &lhs, const Player &rhs) const {
         return lhs.getPlayerName() < rhs.getPlayerName();
     }
+
+
 };
 
 struct PlayerCompare {
-    bool operator() (const Player& lhs, const Player& rhs) const {
+    bool operator()(const Player &lhs, const Player &rhs) const {
         // Implémentez votre logique de comparaison ici, par exemple, comparez les identifiants
         return lhs.getPlayerName() < rhs.getPlayerName();
     }

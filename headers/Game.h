@@ -70,6 +70,7 @@ public:
     void nextPlayer();
 
     void placeTile(Tile tile, int x, int y);
+    void deleteTile(Tile tile, int x, int y);
 
     void getBonus();
 

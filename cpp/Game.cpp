@@ -38,6 +38,24 @@ void Game::initDefault() {
     display5Tiles();
     displayBoard();
     placePlayers();
+
+    /*for (int i = 0; i < 6; ++i) {
+        for (int j = 0; j < 2; ++j) {
+
+            board[i][j].setTouch(false);
+            board[i][j].setPlayer(&players[0]);
+            board[i][j].setType(players[0].getPlayerChar());
+        }
+    }
+
+    for (int i = 10; i < 16; ++i) {
+        for (int j = 10; j < 16; ++j) {
+
+            board[i][j].setTouch(false);
+            board[i][j].setPlayer(&players[1]);
+            board[i][j].setType(players[1].getPlayerChar());
+        }
+    }*/
 }
 
 
@@ -201,6 +219,8 @@ void Game::placePlayers() {
 }
 
 void Game::placeTile(Tile tile, int x, int y) {
+    currentPlayer->addTile(tile);
+
     int startX = -1;
     int startY = -1;
     for (int i = 0; i < tile.getTile().size(); ++i) {
@@ -219,11 +239,12 @@ void Game::placeTile(Tile tile, int x, int y) {
         for (int j = 0; j < tile.getTile()[i].size(); ++j) {
             if (tile.getTile()[i][j] != '0') {
                 board[x + i - startX][y + j - startY].setPlayer(currentPlayer);
-                board[x + i - startX][y + j - startY].setType(currentPlayer->getPlayerChar());
+                board[x + i - startX][y + j - startY].setType(currentPlayer->getCurrentChar());
                 board[x + i - startX][y + j - startY].setTouch(false);
             }
         }
     }
+
     removeTile(tile);
     currentTile = takeFirstTile();
 }
@@ -463,7 +484,7 @@ void Game::stoneAction() {
         cout << "Entrez les coordonnees de la tuile :" << endl;
         cin >> x >> y;
 
-        if (board[x][y].getType() == currentPlayer->getPlayerChar()) {
+        if (board[x][y].getPlayer()->getPlayerName() != currentPlayer->getPlayerName()) {
             //board[x][y].setStone(true);
             currentPlayer->setStoneBonus(currentPlayer->getStoneBonus() - 1);
             validStone = true;
@@ -482,12 +503,18 @@ void Game::robberyAction() {
         cout << "Entrez les coordonnees de la tuile :" << endl;
         cin >> x >> y;
 
-        if (board[x][y].getType() != currentPlayer->getPlayerChar() && board[x][y].getType() != '.') {
-            board[x][y].setPlayer(currentPlayer);
-            board[x][y].setType(currentPlayer->getPlayerChar());
-            board[x][y].setTouch(false);
+        if (board[x][y].getPlayer()->getPlayerName() != currentPlayer->getPlayerName()) {
+            char type = board[x][y].getType();
+            Player *player = board[x][y].getPlayer();
+
+            player->getTile(type).display();
+
+            currentTile = player->getTile(type);
             currentPlayer->setRobberyBonus(currentPlayer->getRobberyBonus() - 1);
             validRobbery = true;
+            deleteTile(player->getTile(type), x, y);
+            cout << "La tuile a ete volee" << endl;
+            askAction();
         } else {
             cout << "Merci de rentrer un placement valide" << endl;
         }
@@ -578,48 +605,71 @@ void Game::removeTile(const Tile &tile) {
 
 Player Game::checkWinner() {
     map<Player, int, PlayerCompare> scores;
-    for (auto item: players) {
+    for (const auto &item: players) {
         int maxScore = 0;
+        cout << item.getPlayerName() << endl;
         for (int i = 0; i < board.size(); ++i) {
             for (int j = 0; j < board.size(); ++j) {
                 bool continueLoop = true;
-
+                int radius = 2;
                 while (continueLoop) {
-                    int radius = 1;
+
                     for (int k = 0; k < radius; ++k) {
                         for (int l = 0; l < radius; ++l) {
                             if (i + k < board.size() && j + l < board.size()) {
-                                if (board[i + k][j + l].getPlayer() != &item) {
+                                Player *player = board[i + k][j + l].getPlayer();
+                                if (player == nullptr || player->getPlayerName() != item.getPlayerName()) {
                                     continueLoop = false;
                                 }
                             }
                         }
                     }
+
                     if (continueLoop) {
-                        maxScore++;
+                        radius += 1;
+                        if (maxScore < radius)
+                            maxScore = radius - 1;
                     }
-                    radius++;
+
                 }
             }
         }
         scores[item] = maxScore;
     }
-    scores.erase(
-            max_element(scores.begin(), scores.end(), [](const pair<Player, int> &p1, const pair<Player, int> &p2) {
-                return p1.second < p2.second;
-            }));
-
-    cout << scores.begin()->first.getPlayerName() << " a gagne avec " << scores.begin()->second << " points" << endl;
-    cout << "Felicitation !" << endl;
 
     // Display other players scores
-    for (auto item: scores) {
-        if (item.first.getPlayerName() != scores.begin()->first.getPlayerName()) {
-            cout << item.first.getPlayerName() << " a " << item.second << " points" << endl;
-        }
+    for (const auto &item: scores) {
+        cout << item.first.getPlayerName() << " a " << item.second << " points" << endl;
     }
 
     return scores.begin()->first;
+}
+
+void Game::deleteTile(Tile tile, int x, int y) {
+    int startX = -1;
+    int startY = -1;
+    for (int i = 0; i < tile.getTile().size(); ++i) {
+        for (int j = 0; j < tile.getTile()[i].size(); ++j) {
+            if (tile.getTile()[i][j] == '1') {
+                startX = i;
+                startY = j;
+                break;
+            }
+        }
+        if (startX != -1) {
+            break;
+        }
+    }
+    for (int i = 0; i < tile.getTile().size(); ++i) {
+        for (int j = 0; j < tile.getTile()[i].size(); ++j) {
+            if (tile.getTile()[i][j] != '0') {
+                board[x + i - startX][y + j - startY].setPlayer(nullptr);
+                board[x + i - startX][y + j - startY].setType('.');
+                board[x + i - startX][y + j - startY].setTouch(true);
+            }
+        }
+    }
+
 }
 
 
