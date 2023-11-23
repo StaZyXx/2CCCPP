@@ -491,6 +491,8 @@ void Game::exchangeAction() {
         Tile tile = takeTile(tileToExchange - 1);
         currentTile = tile;
         currentPlayer->setTileExchangeBonus(currentPlayer->getTileExchangeBonus() - 1);
+        validExchange = true;
+        cout << "La tuile a ete echangee" << endl;
     }
 }
 
@@ -571,7 +573,6 @@ void Game::nextPlayer() {
     }
 }
 
-// a tester
 void Game::getBonus() {
     for (int i = 0; i < board.size(); ++i) {
         for (int j = 0; j < board.size(); ++j) {
@@ -629,7 +630,6 @@ Player Game::checkWinner() {
     map<Player, int, PlayerCompare> scores;
     for (const auto &item: players) {
         int maxScore = 0;
-        cout << item.getPlayerName() << endl;
         for (int i = 0; i < board.size(); ++i) {
             for (int j = 0; j < board.size(); ++j) {
                 bool continueLoop = true;
@@ -694,7 +694,7 @@ void Game::placeLastTile() {
     while (!validPlacement) {
         bool hasPlaced = false;
         for (int i = 0; i < players.size(); ++i) {
-            while (!hasPlaced) {
+            while (!hasPlaced && players[i].getTileExchangeBonus() > 0) {
                 int exchangeBonus = players[i].getTileExchangeBonus();
                 if (exchangeBonus == 0) {
                     continue;
