@@ -509,6 +509,7 @@ void Game::stoneAction() {
             board[x][y].setStone(true);
             currentPlayer->setStoneBonus(currentPlayer->getStoneBonus() - 1);
             validStone = true;
+            displayBoard();
         } else {
             cout << "Merci de rentrer un placement valide" << endl;
         }
