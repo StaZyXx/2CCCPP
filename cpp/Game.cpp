@@ -15,7 +15,7 @@ using namespace std;
 
 Game::Game() = default;
 
-const int MAX_ROUND = 2;
+const int MAX_ROUND = 9;
 
 const map<string, int> colors = {
         {"Rouge",     4},
@@ -52,7 +52,7 @@ void Game::initPlayers() {
     while (!validPlayerAmount) {
         cout << "Entrez le nombre de joueurs :";
         cin >> amountPlayer;
-        if (amountPlayer >= 2 && amountPlayer <= 9) {
+        if (amountPlayer >= 4 && amountPlayer <= 9) {
             validPlayerAmount = true;
         } else {
             validPlayerAmount = false;
@@ -216,7 +216,6 @@ void Game::placePlayers() {
                 board[x][y].setPlayer(&players[i]);
                 board[x][y].setType(players[i].getPlayerChar());
                 board[x][y].setTouch(false);
-                cout << allTiles.size() << endl;
                 displayBoard();
                 validPlacement = true;
             } else {
