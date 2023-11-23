@@ -282,7 +282,8 @@ bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
                     }
                 }
                 if (!isInBoard(x + i - startX, y + j - startY) || !isInBoard(x - startX + 1, y - startY + 1) ||
-                    !checkPlacement(x + i - startX, y + j - startY)) {
+                    !checkPlacement(x + i - startX, y + j - startY) || board[x + i - startX][y + j - startY].bonus !=
+                                                                       Case::NONE) {
                     cout << "La tuile ne peut pas etre placee ici" << endl;
                     return false;
                 }
@@ -304,7 +305,8 @@ bool Game::checkPlacement(int x, int y) {
     }
     //Check top-right corner
     if (x == 0 && y == board.size() - 1) {
-        return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) && board[x][y - 1].canTouch();
+        return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) &&
+               board[x][y - 1].canTouch(currentPlayer);
     }
     //Check bottom-right corner
     if (x == board.size() - 1 && y == board.size() - 1) {
@@ -338,7 +340,7 @@ bool Game::checkPlacement(int x, int y) {
     if (x != 0 && x != board.size() - 1 && y == 0) {
         return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) &&
                board[x - 1][y].canTouch(currentPlayer) &&
-               board[x][y + 1].canTouch();
+               board[x][y + 1].canTouch(currentPlayer);
     }
     //Except all sides and corners
     if (x != 0 && x != board.size() - 1 && y != 0 && y != board.size() - 1) {
