@@ -29,6 +29,7 @@ const map<string, int> colors = {
         {"Turquoise", 11}
 };
 
+// startGame() is a function that starts the game
 void Game::startGame() {
     initPlayers();
     createBoard();
@@ -44,7 +45,7 @@ void Game::startGame() {
     checkWinner();
 }
 
-
+// initPlayers() is a function that initializes the players
 void Game::initPlayers() {
     vector<string> colors = {"Rouge", "Bleu", "Vert", "Jaune", "Violet", "Blanc", "Rose", "Orange", "Turquoise"};
     bool validPlayerAmount = false;
@@ -90,6 +91,7 @@ void Game::initPlayers() {
     currentPlayer = &players[0];
 }
 
+// createBoard() is a function that creates the board
 void Game::createBoard() {
     int boardSize;
     if (amountPlayer <= 4) {
@@ -138,6 +140,7 @@ void Game::createBoard() {
     }
 }
 
+// display5Tiles() is a function that displays the 5 tiles that the player can choose from
 void Game::display5Tiles() {
     // Trouver la hauteur maximale et la largeur maximale parmi toutes les tuiles
     int maxHeight = 0;
@@ -176,6 +179,7 @@ void Game::display5Tiles() {
     }
 }
 
+// displayBoard() is a function that displays the board
 void Game::displayBoard() {
     cout << " " << endl;
     cout << string(to_string(board.size()).length() + 1, ' ');
@@ -200,6 +204,7 @@ void Game::displayBoard() {
     }
 }
 
+// placePlayers() is a function that places the players on the board
 void Game::placePlayers() {
     for (int i = 0; i < players.size(); ++i) {
         int x, y;
@@ -221,6 +226,7 @@ void Game::placePlayers() {
     }
 }
 
+// placeTile() is a function that places a tile on the board
 void Game::placeTile(Tile tile, int x, int y) {
     currentPlayer->addTile(tile);
 
@@ -252,6 +258,7 @@ void Game::placeTile(Tile tile, int x, int y) {
     currentTile = takeFirstTile();
 }
 
+// checkPlacementOfTile() is a function that checks if a tile can be placed on the board
 bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
     for (int i = 0; i < tile.getTile().size(); ++i) {
         for (int j = 0; j < tile.getTile()[i].size(); ++j) {
@@ -282,10 +289,12 @@ bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
     return true;
 }
 
+// isInBoard() is a function that checks if a location is in the board
 bool Game::isInBoard(int x, int y) {
     return x >= 0 && x < board.size() && y >= 0 && y < board.size();
 }
 
+// checkPlacement() is a function that checks if a tile can be placed on the board
 bool Game::checkPlacement(int x, int y) {
     //Check top-left corner
     if (x == 0 && y == 0) {
@@ -341,6 +350,7 @@ bool Game::checkPlacement(int x, int y) {
     return false;
 }
 
+// mixTiles() is a function that mixes all the tiles get from the files
 void Game::mixTiles() {
     for (int i = 1; i <= 96; ++i) {
         string file = "../tiles/" + to_string(i) + ".txt";
@@ -372,6 +382,7 @@ void Game::mixTiles() {
     currentTile = takeFirstTile();
 }
 
+// askAction() is a function that asks the player what action he wants to do
 void Game::askAction() {
     cout << "Joueur " << currentPlayer->getPlayerName() << " c'est a vous de jouer" << endl;
     cout << "1. Placer une tuile (P)" << endl;
@@ -431,6 +442,7 @@ void Game::askAction() {
     }
 }
 
+// placeAction() is a function that allows the player to place a tile
 void Game::placeAction() {
     bool validPlacement = false;
 
@@ -476,6 +488,7 @@ void Game::placeAction() {
     }
 }
 
+// exchangeAction() is a function that allows the player to exchange a tile
 void Game::exchangeAction() {
     bool validExchange = false;
 
@@ -495,6 +508,7 @@ void Game::exchangeAction() {
     }
 }
 
+// stoneAction() is a function that allows the player to place a stone on a tile
 void Game::stoneAction() {
     bool validStone = false;
 
@@ -515,6 +529,7 @@ void Game::stoneAction() {
     }
 }
 
+// removeStone() is a function that allows the player to remove a stone from the board
 void Game::removeStone() {
     bool validStone = false;
 
@@ -533,6 +548,7 @@ void Game::removeStone() {
     }
 }
 
+// robberyAction() is a function that allows the player to steal a tile from another player
 void Game::robberyAction() {
     bool validRobbery = false;
 
@@ -560,10 +576,12 @@ void Game::robberyAction() {
     }
 }
 
+// getRound() is a function that returns the current round
 int Game::getRound() {
     return currentRound;
 }
 
+// nextPlayer() is a function that changes the current player
 void Game::nextPlayer() {
     if (currentPlayer == &players[players.size() - 1]) {
         currentPlayer = &players[0];
@@ -573,6 +591,7 @@ void Game::nextPlayer() {
     }
 }
 
+// getBonus() is a function that checks if a player has a bonus
 void Game::getBonus() {
     for (int i = 0; i < board.size(); ++i) {
         for (int j = 0; j < board.size(); ++j) {
@@ -607,27 +626,27 @@ void Game::getBonus() {
 
 }
 
+// takeFirstTile() is a function for taking the first tile from the vector of all tiles
 Tile Game::takeFirstTile() {
     return allTiles[0];
 }
 
+// takeTile() is a function for taking a tile from the vector of all tiles
 Tile Game::takeTile(int index) {
     return allTiles[index];
 }
 
-
+// removeTile() is a function for removing a tile from the vector of all tiles
 void Game::removeTile(const Tile &tile) {
-    cout << allTiles.size() << endl;
     for (int i = 0; i < allTiles.size(); ++i) {
         if (allTiles[i].getId() == tile.getId()) {
             allTiles.erase(allTiles.begin() + i);
         }
     }
-    cout << allTiles.size() << endl;
 }
 
 // checkWinner() is a function that checks the winner of the game
-// Check each case
+// Check each case and increment the score of the player if he has the most tiles around him
 Player Game::checkWinner() {
     map<Player, int, PlayerCompare> scores;
     for (const auto &item: players) {

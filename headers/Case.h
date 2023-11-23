@@ -34,7 +34,7 @@ public:
 
     void setStone(bool value);
 
-    bool getIsStone();
+    bool getIsStone() const;
 };
 
 

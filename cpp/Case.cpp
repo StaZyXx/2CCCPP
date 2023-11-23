@@ -41,7 +41,7 @@ void Case::setTouch(bool touch) {
     this->touch = touch;
 }
 
-bool Case::getIsStone() {
+bool Case::getIsStone() const {
     return isStone;
 }
 
