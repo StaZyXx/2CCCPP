@@ -26,10 +26,16 @@ vector<vector<char>> Tile::getTile() const {
 void Tile::display() {
     for (int i = 0; i < tile.size(); ++i) {
         for (int j = 0; j < tile[i].size(); ++j) {
-            if (tile[i][j] == '0'){
+            if (tile[i][j] == '0') {
                 cout << ' ';
-            }else{
+            } else if (tile[i][j] == '1') {
+                setConsoleColor(4, 4);
                 cout << tile[i][j];
+                resetConsoleColor();
+            } else {
+                setConsoleColor(8, 8);
+                cout << tile[i][j];
+                resetConsoleColor();
             }
         }
         cout << endl;
