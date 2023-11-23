@@ -23,7 +23,7 @@ void Game::startGame() {
         getBonus();
         nextPlayer();
     }
-
+    placeLastTile();
     checkWinner();
 }
 
@@ -100,9 +100,6 @@ void Game::initPlayers() {
         }
         players.push_back(Player(playerColor, playerName, playerName[0]));
     }
-    for (auto &player: players) {
-        cout << "Name: " << player.getPlayerName() << " | Color: " << player.getPlayerColor() << endl;
-    }
 }
 
 void Game::createBoard() {
@@ -152,11 +149,12 @@ void Game::createBoard() {
         }
     }
 }
+
 void Game::display5Tiles() {
     // Trouver la hauteur maximale et la largeur maximale parmi toutes les tuiles
     int maxHeight = 0;
     int maxWidth = 0;
-    for (const Tile& tile : allTiles) {
+    for (const Tile &tile: allTiles) {
         int tileHeight = tile.getTile().size();
         int tileWidth = tile.getTile()[0].size(); // On suppose que toutes les lignes de la tuile ont la même largeur
         if (tileHeight > maxHeight) {
@@ -189,6 +187,7 @@ void Game::display5Tiles() {
         cout << endl;
     }
 }
+
 void Game::displayBoard() {
     cout << " " << endl;
     cout << string(to_string(board.size()).length() + 1, ' ');
@@ -277,9 +276,8 @@ bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
                         break;
                     }
                 }
-
-                if (x - startX + 1 < 0 || y - startY + 1 < 0 || x + i - startX >= board.size() ||
-                    y + j - startY >= board.size() || !checkPlacement(x + i, y + j)) {
+                if (isInBoard(x + i - startX, y + j - startY) || isInBoard(x - startX + 1, y - startY + 1) ||
+                    !checkPlacement(x + i, y + j)) {
                     cout << "La tuile ne peut pas etre placee ici" << endl;
                     return false;
                 }
@@ -289,12 +287,11 @@ bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
     return true;
 }
 
-bool Game::checkPlacement(int x, int y) {
-    // Le problème ici c'est que on check pas si la case +1 ou -1 est au joueur qui joue ducoup on peut pas coller les cases entre elles
-    // Autre problème pas sur, mais si on colle 2 tile ensemble, on peut pas en mettre une autre a coté vu que c'est une case et donc qu'on peut pas la toucher
-    // Autre problème on peut mettre une tuile sur une case bonus
-    // On peut poser en dehors du tableau si la coordonée de départ est en A A et que la tuile est sur la gauche
+bool Game::isInBoard(int x, int y) {
+    return x >= 0 && x < board.size() && y >= 0 && y < board.size();
+}
 
+bool Game::checkPlacement(int x, int y) {
     //Check top-left corner
     if (x == 0 && y == 0) {
         return board[x][y].canTouch() && board[x + 1][y].canTouch(currentPlayer) &&
@@ -634,20 +631,16 @@ Player Game::checkWinner() {
                             }
                         }
                     }
-
                     if (continueLoop) {
                         radius += 1;
                         if (maxScore < radius)
                             maxScore = radius - 1;
                     }
-
                 }
             }
         }
         scores[item] = maxScore;
     }
-
-    // Display other players scores
     for (const auto &item: scores) {
         cout << item.first.getPlayerName() << " a " << item.second << " points" << endl;
     }
@@ -679,9 +672,25 @@ void Game::deleteTile(Tile tile, int x, int y) {
             }
         }
     }
-
 }
 
+void Game::placeLastTile() {
+    int x, y;
+    for (int i = 0; i < players.size(); ++i) {
+        while (players[i].getTileExchangeBonus() > 0) {
+            cout << "Joueur " << i << " il vous reste " << players[i].getTileExchangeBonus() << " bonus d'échange"
+                 << endl;
+            cout << "Entrez les coordonnees de la tuile 1x1 dont vous disposez :";
+            cin >> x >> y;
+            if (checkPlacement(x, y)) {
+                board[x][y].setPlayer(&players[i]);
+                board[x][y].setType(players[i].getPlayerChar());
+                board[x][y].setTouch(false);
+                players[i].setTileExchangeBonus(players[i].getTileExchangeBonus() - 1);
+            } else {
+                cout << "Merci de rentrer un placement valide" << endl;
+            }
+        }
 
-
-
+    }
+}

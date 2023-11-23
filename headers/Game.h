@@ -77,6 +77,10 @@ public:
     Player checkWinner();
 
     void display5Tiles();
+
+    void placeLastTile();
+
+    bool isInBoard(int x, int y);
 };
 
 
