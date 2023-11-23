@@ -16,9 +16,9 @@ private:
 
     char playerChar;
 
-    int tileExchangeBonus = 5;
-    int stoneBonus = 5;
-    int robberyBonus = 5;
+    int tileExchangeBonus = 0;
+    int stoneBonus = 0;
+    int robberyBonus = 0;
 
     map<char, Tile> tiles;
 
