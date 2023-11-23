@@ -17,7 +17,6 @@ public:
 
     vector<vector<char>> getTile() const;
 
-
     void display();
 
     Tile rotate();
@@ -26,9 +25,9 @@ public:
 
     void displayInline(int row);
 
-    void setConsoleColor(int textColor, int bgColor);
+    static void setConsoleColor(int textColor, int bgColor);
 
-    void resetConsoleColor();
+    static void resetConsoleColor();
 
 };
 

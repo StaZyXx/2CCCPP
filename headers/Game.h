@@ -25,17 +25,9 @@ public:
 
     Game();
 
-    Tile getCurrentTile() const;
-
-    void setCurrentTile(Tile currentTile);
-
     Tile takeFirstTile();
 
     Tile takeTile(int index);
-
-    void setTile(Tile tile, int index);
-
-    void setFirstTile(const Tile& tile);
 
     void removeTile(const Tile& tile);
 

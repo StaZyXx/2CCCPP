@@ -1,3 +1,4 @@
+#include <windows.h>
 #include "../headers/Game.h"
 #include <iostream>
 #include <vector>
@@ -9,11 +10,24 @@
 #include <random>
 #include <chrono>
 
+
 using namespace std;
 
 Game::Game() = default;
 
-const int MAX_ROUND = 3;
+const int MAX_ROUND = 2;
+
+const map<string, int> colors = {
+        {"Rouge",     4},
+        {"Bleu",      9},
+        {"Vert",      10},
+        {"Jaune",     14},
+        {"Violet",    5},
+        {"Blanc",     15},
+        {"Rose",      13},
+        {"Orange",    6},
+        {"Turquoise", 11}
+};
 
 void Game::startGame() {
     initPlayers();
@@ -21,7 +35,6 @@ void Game::startGame() {
     mixTiles();
     displayBoard();
     placePlayers();
-    //initDefault();
     while (getRound() != MAX_ROUND) {
         askAction();
         getBonus();
@@ -31,39 +44,9 @@ void Game::startGame() {
     checkWinner();
 }
 
-void Game::initDefault() {
-    amountPlayer = 2;
-
-    players.push_back(Player("Rouge", "Joueur 1", '1'));
-    players.push_back(Player("Bleu", "Joueur 2", '2'));
-    currentPlayer = &players[0];
-    createBoard();
-    mixTiles();
-    displayBoard();
-    placePlayers();
-
-    /*for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 2; ++j) {
-
-            board[i][j].setTouch(false);
-            board[i][j].setPlayer(&players[0]);
-            board[i][j].setType(players[0].getPlayerChar());
-        }
-    }
-
-    for (int i = 10; i < 16; ++i) {
-        for (int j = 10; j < 16; ++j) {
-
-            board[i][j].setTouch(false);
-            board[i][j].setPlayer(&players[1]);
-            board[i][j].setType(players[1].getPlayerChar());
-        }
-    }*/
-}
-
 
 void Game::initPlayers() {
-    vector<string> colors = {"Rouge", "Bleu", "Vert", "Jaune", "Violet", "Blanc", "Rose", "Orange", "Marron"};
+    vector<string> colors = {"Rouge", "Bleu", "Vert", "Jaune", "Violet", "Blanc", "Rose", "Orange", "Turquoise"};
     bool validPlayerAmount = false;
     while (!validPlayerAmount) {
         cout << "Entrez le nombre de joueurs :";
@@ -205,7 +188,13 @@ void Game::displayBoard() {
         int amountSpace = 3 - to_string(i).length();
         cout << i << string(amountSpace, ' ');
         for (int j = 0; j < board.size(); ++j) {
+            Case currentCase = board[i][j];
+            if (currentCase.getPlayer() != nullptr) {
+                SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+                                        (colors.at(currentCase.getPlayer()->getPlayerColor()) + (0 * 16)));
+            }
             cout << board[i][j].getType() << "  ";
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
         }
         cout << endl;
     }
@@ -283,7 +272,8 @@ bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
                 }
                 if (!isInBoard(x + i - startX, y + j - startY) || !isInBoard(x - startX + 1, y - startY + 1) ||
                     !checkPlacement(x + i - startX, y + j - startY) || board[x + i - startX][y + j - startY].bonus !=
-                                                                       Case::NONE) {
+                                                                       Case::NONE ||
+                    board[x + i - startX][y + j - startY].getIsStone()) {
                     cout << "La tuile ne peut pas etre placee ici" << endl;
                     return false;
                 }
@@ -513,6 +503,7 @@ void Game::stoneAction() {
         cin >> x >> y;
 
         if (isInBoard(x, y) && board[x][y].getType() == '.') {
+            board[x][y].setType('X');
             board[x][y].setStone(true);
             currentPlayer->setStoneBonus(currentPlayer->getStoneBonus() - 1);
             validStone = true;
@@ -614,14 +605,6 @@ void Game::getBonus() {
 
 }
 
-Tile Game::getCurrentTile() const {
-    return currentTile;
-}
-
-void Game::setCurrentTile(Tile currentTile) {
-    Game::currentTile = currentTile;
-}
-
 Tile Game::takeFirstTile() {
     return allTiles[0];
 }
@@ -630,13 +613,6 @@ Tile Game::takeTile(int index) {
     return allTiles[index];
 }
 
-void Game::setTile(Tile tile, int index) {
-    allTiles.insert(allTiles.begin() + index, tile);
-}
-
-void Game::setFirstTile(const Tile &tile) {
-    allTiles.insert(allTiles.begin(), tile);
-}
 
 void Game::removeTile(const Tile &tile) {
     cout << allTiles.size() << endl;
@@ -714,22 +690,35 @@ void Game::deleteTile(Tile tile, int x, int y) {
 }
 
 void Game::placeLastTile() {
-    int x, y;
-    for (int i = 0; i < players.size(); ++i) {
-        while (players[i].getTileExchangeBonus() > 0) {
-            cout << "Joueur " << i << " il vous reste " << players[i].getTileExchangeBonus() << " bonus d'échange"
-                 << endl;
-            cout << "Entrez les coordonnees de la tuile 1x1 dont vous disposez :";
-            cin >> x >> y;
-            if (checkPlacement(x, y)) {
-                board[x][y].setPlayer(&players[i]);
-                board[x][y].setType(players[i].getPlayerChar());
-                board[x][y].setTouch(false);
-                players[i].setTileExchangeBonus(players[i].getTileExchangeBonus() - 1);
-            } else {
-                cout << "Merci de rentrer un placement valide" << endl;
+    bool validPlacement = false;
+    while (!validPlacement) {
+        bool hasPlaced = false;
+        for (int i = 0; i < players.size(); ++i) {
+            while (!hasPlaced) {
+                int exchangeBonus = players[i].getTileExchangeBonus();
+                if (exchangeBonus == 0) {
+                    continue;
+                }
+                displayBoard();
+                int x, y;
+                cout << "Joueur " << i << " il vous reste " << exchangeBonus << " bonus d'echange"
+                     << endl;
+                cout << "Entrez les coordonnees de la tuile 1x1 dont vous disposez :";
+                cin >> x >> y;
+                if (checkPlacement(x, y)) {
+                    hasPlaced = true;
+                    board[x][y].setPlayer(&players[i]);
+                    board[x][y].setType(players[i].getPlayerChar());
+                    board[x][y].setTouch(false);
+                    players[i].setTileExchangeBonus(players[i].getTileExchangeBonus() - 1);
+                } else {
+                    cout << "Merci de rentrer un placement valide" << endl;
+                }
             }
         }
-
+        if (!hasPlaced) {
+            validPlacement = true;
+        }
     }
+
 }
