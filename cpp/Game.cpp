@@ -271,8 +271,7 @@ bool Game::checkPlacementOfTile(Tile tile, int x, int y) {
                     }
                 }
                 if (!isInBoard(x + i - startX, y + j - startY) || !isInBoard(x - startX + 1, y - startY + 1) ||
-                    !checkPlacement(x + i - startX, y + j - startY) || board[x + i - startX][y + j - startY].bonus !=
-                                                                       Case::NONE ||
+                    !checkPlacement(x + i - startX, y + j - startY) ||
                     board[x + i - startX][y + j - startY].getIsStone()) {
                     cout << "La tuile ne peut pas etre placee ici" << endl;
                     return false;
@@ -582,11 +581,10 @@ void Game::getBonus() {
                 if (board[i + 1][j].getPlayer() == currentPlayer &&
                     board[i - 1][j].getPlayer() == currentPlayer &&
                     board[i][j + 1].getPlayer() == currentPlayer &&
-                    board[i][j - 1].getPlayer() == currentPlayer &&
-                    board[i + 1][j + 1].getPlayer() == currentPlayer &&
-                    board[i - 1][j - 1].getPlayer() == currentPlayer &&
-                    board[i + 1][j - 1].getPlayer() == currentPlayer &&
-                    board[i - 1][j + 1].getPlayer() == currentPlayer) {
+                    board[i][j - 1].getPlayer() == currentPlayer) {
+                    board[i][j].setTouch(false);
+                    board[i][j].setType(currentPlayer->getCurrentChar());
+                    board[i][j].setPlayer(currentPlayer);
                     if (board[i][j].bonus == Case::EXCHANGE_TILE) {
                         currentPlayer->setTileExchangeBonus(currentPlayer->getTileExchangeBonus() + 1);
                         cout << "Le joueur " << currentPlayer->getPlayerName() << " a recu un bonus d'echange" << endl;
@@ -595,10 +593,12 @@ void Game::getBonus() {
                         currentPlayer->setRobberyBonus(currentPlayer->getRobberyBonus() + 1);
                         cout << "Le joueur " << currentPlayer->getPlayerName() << " a recu un bonus de vol" << endl;
                         board[i][j].bonus = Case::NONE;
+                        robberyAction();
                     } else if (board[i][j].bonus == Case::STONE_TILE) {
                         currentPlayer->setStoneBonus(currentPlayer->getStoneBonus() + 1);
                         cout << "Le joueur " << currentPlayer->getPlayerName() << " a recu un bonus de pierre" << endl;
                         board[i][j].bonus = Case::NONE;
+                        stoneAction();
                     }
                 }
             }
